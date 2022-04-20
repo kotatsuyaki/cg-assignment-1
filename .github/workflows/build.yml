@@ -1,20 +1,60 @@
 on:
   - push
 
-name: Build Windows
+env:
+  UBUNTU_DEPS: g++ cmake make pkg-config libglfw3 libglfw3-dev
+
+name: Build
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
+
+      # Install dependencies
       - uses: microsoft/setup-msbuild@v1.1
 
+      # Configure and build
       - run: cmake -G "Visual Studio 17 2022" -A x64 .
-      - run: msbuild proj.sln
+      - run: msbuild proj.sln /p:configuration=release
 
+      # Upload
       - uses: actions/upload-artifact@v3
         with:
-          name: EXE
-          path: x64/release/proj.exe
+          name: windows-bin
+          path: Release/proj.exe
+
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Install dependencies
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y $UBUNTU_DEPS
+
+      # Configure and build
+      - run: cmake .
+      - run: make -j
+
+      # Upload
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ubuntu-bin
+          path: proj
+
+  build-nix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: cachix/install-nix-action@v17
+
+      # Build
+      - run: nix build .#
