@@ -1,0 +1,20 @@
+on:
+  - push
+
+name: Build Windows
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: microsoft/setup-msbuild@v1.1
+
+      - run: cmake -G "Visual Studio 17 2022" -A x64 .
+      - run: msbuild proj.sln
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: EXE
+          path: x64/release/proj.exe
