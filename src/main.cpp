@@ -95,7 +95,7 @@ int cur_idx = 0; // represent which model should be rendered now
 GLvoid normalize(GLfloat v[3]) {
     GLfloat l;
 
-    l = (GLfloat)sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    l = static_cast<GLfloat>(std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
     v[0] /= l;
     v[1] /= l;
     v[2] /= l;
@@ -176,9 +176,7 @@ Matrix4 rotate_z(GLfloat val) {
     return mat;
 }
 
-Matrix4 rotate(Vector3 vec) {
-    return rotate_x(vec.x) * rotate_y(vec.y) * rotate_z(vec.z);
-}
+Matrix4 rotate(Vector3 vec) { return rotate_x(vec.x) * rotate_y(vec.y) * rotate_z(vec.z); }
 
 // [TODO] compute viewing matrix accroding to the setting of main_camera
 void set_viewing_matrix() {
@@ -254,8 +252,7 @@ void render_scene() {
     draw_plane();
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action,
-                  int mods) {
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // [TODO] Call back function for keyboard
 }
 
@@ -263,8 +260,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     // [TODO] scroll up positive, otherwise it would be negtive
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action,
-                           int mods) {
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     // [TODO] mouse press callback function
 }
 
@@ -294,8 +290,7 @@ void set_shaders() {
     glGetShaderiv(v, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(v, 1000, NULL, info_log);
-        std::cout << "ERROR: VERTEX SHADER COMPILATION FAILED\n"
-                  << info_log << "\n";
+        std::cout << "ERROR: VERTEX SHADER COMPILATION FAILED\n" << info_log << "\n";
     }
 
     // compile fragment shader
@@ -304,8 +299,7 @@ void set_shaders() {
     glGetShaderiv(f, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(f, 1000, NULL, info_log);
-        std::cout << "ERROR: FRAGMENT SHADER COMPILATION FAILED\n"
-                  << info_log << "\n";
+        std::cout << "ERROR: FRAGMENT SHADER COMPILATION FAILED\n" << info_log << "\n";
     }
 
     // create program object
@@ -321,8 +315,7 @@ void set_shaders() {
     glGetProgramiv(p, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(p, 1000, NULL, info_log);
-        std::cout << "ERROR: SHADER PROGRAM LINKING FAILED\n"
-                  << info_log << "\n";
+        std::cout << "ERROR: SHADER PROGRAM LINKING FAILED\n" << info_log << "\n";
     }
 
     glDeleteShader(v);
@@ -338,11 +331,11 @@ void set_shaders() {
     }
 }
 
-void normalization(tinyobj::attrib_t* attrib, vector<GLfloat>& vertices,
-                   vector<GLfloat>& colors, tinyobj::shape_t* shape) {
+void normalization(tinyobj::attrib_t* attrib, vector<GLfloat>& vertices, vector<GLfloat>& colors,
+                   tinyobj::shape_t* shape) {
     vector<float> xs, ys, zs;
-    float min_x = 10000, max_x = -10000, min_y = 10000, max_y = -10000,
-          min_z = 10000, max_z = -10000;
+    float min_x = 10000, max_x = -10000, min_y = 10000, max_y = -10000, min_z = 10000,
+          max_z = -10000;
 
     // find out min and max value of X, Y and Z axis
     for (int i = 0; i < attrib->vertices.size(); i++) {
@@ -447,8 +440,7 @@ void load_models(string model_path) {
     string err;
     string warn;
 
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err,
-                                model_path.c_str());
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, model_path.c_str());
 
     if (!warn.empty()) {
         cout << warn << "\n";
@@ -462,8 +454,8 @@ void load_models(string model_path) {
         exit(1);
     }
 
-    printf("Load Models Success ! Shapes size %zu Maerial size %zu\n",
-           shapes.size(), materials.size());
+    printf("Load Models Success ! Shapes size %zu Maerial size %zu\n", shapes.size(),
+           materials.size());
 
     normalization(&attrib, vertices, colors, &shapes[0]);
 
@@ -473,15 +465,14 @@ void load_models(string model_path) {
 
     glGenBuffers(1, &tmp_shape.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, tmp_shape.vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat),
-                 &vertices.at(0), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices.at(0),
+                 GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     tmp_shape.vertex_count = vertices.size() / 3;
 
     glGenBuffers(1, &tmp_shape.p_color);
     glBindBuffer(GL_ARRAY_BUFFER, tmp_shape.p_color);
-    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(GLfloat),
-                 &colors.at(0), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(GLfloat), &colors.at(0), GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     m_shape_list.push_back(tmp_shape);
@@ -537,8 +528,7 @@ void gl_print_context_info(bool print_extension) {
     cout << "GL_VENDOR = " << glGetString(GL_VENDOR) << "\n";
     cout << "GL_RENDERER = " << glGetString(GL_RENDERER) << "\n";
     cout << "GL_VERSION = " << glGetString(GL_VERSION) << "\n";
-    cout << "GL_SHADING_LANGUAGE_VERSION = "
-         << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
+    cout << "GL_SHADING_LANGUAGE_VERSION = " << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
     if (print_extension) {
         GLint num_ext;
         glGetIntegerv(GL_NUM_EXTENSIONS, &num_ext);
@@ -562,8 +552,7 @@ int main(int argc, char** argv) {
 #endif
 
     // create window
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT,
-                                          "107021129 HW1", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "107021129 HW1", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window"
                   << "\n";
