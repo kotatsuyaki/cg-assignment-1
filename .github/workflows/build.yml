@@ -2,7 +2,7 @@ on:
   - push
 
 env:
-  UBUNTU_DEPS: g++ cmake make pkg-config libglfw3 libglfw3-dev
+  UBUNTU_DEPS: cmake make pkg-config libglfw3 libglfw3-dev
 
 name: Build
 jobs:
@@ -26,11 +26,8 @@ jobs:
           name: windows-bin
           path: Release/proj.exe
 
-  build-ubuntu:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, ubuntu-18.04]
+  build-ubuntu-20:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
         with:
@@ -39,10 +36,35 @@ jobs:
       # Install dependencies
       - run: |
           sudo apt-get update
-          sudo apt-get install -y $UBUNTU_DEPS
+          sudo apt-get install -y g++ $UBUNTU_DEPS
 
       # Configure and build
       - run: cmake .
+      - run: make -j
+
+      # Upload
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ubuntu-bin
+          path: proj
+
+  build-ubuntu-18:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Install dependencies
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y g++-11 gcc-11 $UBUNTU_DEPS
+
+      # Configure and build
+      - run: CXX=g++-11 CC=gcc-11 cmake .
       - run: make -j
 
       # Upload
