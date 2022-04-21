@@ -10,7 +10,7 @@
 
 #include "Matrices.hpp"
 #include "Vectors.hpp"
-#include "textfile.h"
+#include "shaders.hpp"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
@@ -272,20 +272,17 @@ static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
 
 void setShaders() {
     GLuint v, f, p;
-    char* vs = NULL;
-    char* fs = NULL;
+    const char* vs = NULL;
+    const char* fs = NULL;
 
     v = glCreateShader(GL_VERTEX_SHADER);
     f = glCreateShader(GL_FRAGMENT_SHADER);
 
-    vs = textFileRead("shader.vs");
-    fs = textFileRead("shader.fs");
+    vs = resources::shader_vs.c_str();
+    fs = resources::shader_fs.c_str();
 
     glShaderSource(v, 1, (const GLchar**)&vs, NULL);
     glShaderSource(f, 1, (const GLchar**)&fs, NULL);
-
-    free(vs);
-    free(fs);
 
     GLint success;
     char infoLog[1000];
