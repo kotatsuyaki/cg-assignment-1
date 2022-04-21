@@ -150,7 +150,7 @@ struct Vector4 {
 };
 
 // fast math routines from Doom3 SDK
-inline float invSqrt(float x) {
+inline float inv_sqrt(float x) {
     float xhalf = 0.5f * x;
     int i = *(int*)&x;              // get bits for floating value
     i = 0x5f3759df - (i >> 1);      // gives initial guess
@@ -256,9 +256,9 @@ inline Vector2& Vector2::normalize() {
     //@@    return *this;
 
     // float invLength = invSqrt(xxyy);
-    float invLength = 1.0f / sqrtf(xxyy);
-    x *= invLength;
-    y *= invLength;
+    float inv_length = 1.0f / sqrtf(xxyy);
+    x *= inv_length;
+    y *= inv_length;
     return *this;
 }
 
@@ -388,10 +388,10 @@ inline Vector3& Vector3::normalize() {
     //@@    return *this; // do nothing if it is ~zero vector
 
     // float invLength = invSqrt(xxyyzz);
-    float invLength = 1.0f / sqrtf(xxyyzz);
-    x *= invLength;
-    y *= invLength;
-    z *= invLength;
+    float inv_length = 1.0f / sqrtf(xxyyzz);
+    x *= inv_length;
+    y *= inv_length;
+    z *= inv_length;
     return *this;
 }
 
@@ -540,10 +540,10 @@ inline Vector4& Vector4::normalize() {
     //@@    return *this; // do nothing if it is zero vector
 
     // float invLength = invSqrt(xxyyzz);
-    float invLength = 1.0f / sqrtf(xxyyzz);
-    x *= invLength;
-    y *= invLength;
-    z *= invLength;
+    float inv_length = 1.0f / sqrtf(xxyyzz);
+    x *= inv_length;
+    y *= inv_length;
+    z *= inv_length;
     return *this;
 }
 

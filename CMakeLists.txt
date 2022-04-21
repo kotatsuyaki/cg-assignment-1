@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(proj VERSION 1.0)
 
-add_executable(proj src/main.cpp src/glad.c src/Matrices.cpp)
+add_executable(proj src/main.cpp src/matrix.cpp src/glad.c)
 set_property(TARGET proj PROPERTY CXX_STANDARD 17)
 include_directories(proj include)
 

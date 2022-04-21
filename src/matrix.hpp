@@ -19,7 +19,7 @@
 #ifndef MATH_MATRICES_H
 #define MATH_MATRICES_H
 
-#include "Vectors.hpp"
+#include "vector.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
 // 2x2 matrix
@@ -33,13 +33,13 @@ class Matrix2 {
 
     void set(const float src[4]);
     void set(float xx, float xy, float yx, float yy);
-    void setRow(int index, const float row[2]);
-    void setRow(int index, const Vector2& v);
-    void setColumn(int index, const float col[2]);
-    void setColumn(int index, const Vector2& v);
+    void set_row(int index, const float row[2]);
+    void set_row(int index, const Vector2& v);
+    void set_column(int index, const float col[2]);
+    void set_column(int index, const Vector2& v);
 
     const float* get() const;
-    float getDeterminant();
+    float get_determinant();
 
     Matrix2& identity();
     Matrix2& transpose(); // transpose itself and return reference
@@ -85,13 +85,13 @@ class Matrix3 {
     void set(const float src[9]);
     void set(float xx, float xy, float xz, float yx, float yy, float yz,
              float zx, float zy, float zz);
-    void setRow(int index, const float row[3]);
-    void setRow(int index, const Vector3& v);
-    void setColumn(int index, const float col[3]);
-    void setColumn(int index, const Vector3& v);
+    void set_row(int index, const float row[3]);
+    void set_row(int index, const Vector3& v);
+    void set_column(int index, const float col[3]);
+    void set_column(int index, const Vector3& v);
 
     const float* get() const;
-    float getDeterminant();
+    float get_determinant();
 
     Matrix3& identity();
     Matrix3& transpose(); // transpose itself and return reference
@@ -139,25 +139,25 @@ class Matrix4 {
     void set(float xx, float xy, float xz, float xw, float yx, float yy,
              float yz, float yw, float zx, float zy, float zz, float zw,
              float wx, float wy, float wz, float ww);
-    void setRow(int index, const float row[4]);
-    void setRow(int index, const Vector4& v);
-    void setRow(int index, const Vector3& v);
-    void setColumn(int index, const float col[4]);
-    void setColumn(int index, const Vector4& v);
-    void setColumn(int index, const Vector3& v);
+    void set_row(int index, const float row[4]);
+    void set_row(int index, const Vector4& v);
+    void set_row(int index, const Vector3& v);
+    void set_column(int index, const float col[4]);
+    void set_column(int index, const Vector4& v);
+    void set_column(int index, const Vector3& v);
 
     const float* get() const;
-    const float* getTranspose(); // return transposed matrix
-    float getDeterminant();
+    const float* get_transpose(); // return transposed matrix
+    float get_determinant();
 
     Matrix4& identity();
-    Matrix4& transpose();       // transpose itself and return reference
-    Matrix4& invert();          // check best inverse method before inverse
-    Matrix4& invertEuclidean(); // inverse of Euclidean transform matrix
-    Matrix4& invertAffine();    // inverse of affine transform matrix
+    Matrix4& transpose();        // transpose itself and return reference
+    Matrix4& invert();           // check best inverse method before inverse
+    Matrix4& invert_euclidean(); // inverse of Euclidean transform matrix
+    Matrix4& invert_affine();    // inverse of affine transform matrix
     Matrix4&
-    invertProjective();       // inverse of projective matrix using partitioning
-    Matrix4& invertGeneral(); // inverse of generic matrix
+    invert_projective(); // inverse of projective matrix using partitioning
+    Matrix4& invert_general(); // inverse of generic matrix
 
     // transform matrix
     Matrix4& translate(float x, float y, float z); // translation by (x,y,z)
@@ -166,10 +166,10 @@ class Matrix4 {
     rotate(float angle,
            const Vector3& axis); // rotate angle(degree) along the given axix
     Matrix4& rotate(float angle, float x, float y, float z);
-    Matrix4& rotateX(float angle); // rotate on X-axis with degree
-    Matrix4& rotateY(float angle); // rotate on Y-axis with degree
-    Matrix4& rotateZ(float angle); // rotate on Z-axis with degree
-    Matrix4& scale(float scale);   // uniform scale
+    Matrix4& rotate_x(float angle); // rotate on X-axis with degree
+    Matrix4& rotate_y(float angle); // rotate on Y-axis with degree
+    Matrix4& rotate_z(float angle); // rotate on Z-axis with degree
+    Matrix4& scale(float scale);    // uniform scale
     Matrix4& scale(float sx, float sy,
                    float sz); // scale by (sx, sy, sz) on each axis
 
@@ -199,7 +199,7 @@ class Matrix4 {
 
   protected:
   private:
-    float getCofactor(float m0, float m1, float m2, float m3, float m4,
+    float get_cofactor(float m0, float m1, float m2, float m3, float m4,
                       float m5, float m6, float m7, float m8);
 
     float m[16];
@@ -234,22 +234,22 @@ inline void Matrix2::set(float xx, float xy, float yx, float yy) {
     m[3] = yy;
 }
 
-inline void Matrix2::setRow(int index, const float row[2]) {
+inline void Matrix2::set_row(int index, const float row[2]) {
     m[index * 2] = row[0];
     m[index * 2 + 1] = row[1];
 }
 
-inline void Matrix2::setRow(int index, const Vector2& v) {
+inline void Matrix2::set_row(int index, const Vector2& v) {
     m[index * 2] = v.x;
     m[index * 2 + 1] = v.y;
 }
 
-inline void Matrix2::setColumn(int index, const float col[2]) {
+inline void Matrix2::set_column(int index, const float col[2]) {
     m[index] = col[0];
     m[index + 2] = col[1];
 }
 
-inline void Matrix2::setColumn(int index, const Vector2& v) {
+inline void Matrix2::set_column(int index, const Vector2& v) {
     m[index] = v.x;
     m[index + 2] = v.y;
 }
@@ -374,25 +374,25 @@ inline void Matrix3::set(float xx, float xy, float xz, float yx, float yy,
     m[8] = zz;
 }
 
-inline void Matrix3::setRow(int index, const float row[3]) {
+inline void Matrix3::set_row(int index, const float row[3]) {
     m[index * 3] = row[0];
     m[index * 3 + 1] = row[1];
     m[index * 3 + 2] = row[2];
 }
 
-inline void Matrix3::setRow(int index, const Vector3& v) {
+inline void Matrix3::set_row(int index, const Vector3& v) {
     m[index * 3] = v.x;
     m[index * 3 + 1] = v.y;
     m[index * 3 + 2] = v.z;
 }
 
-inline void Matrix3::setColumn(int index, const float col[3]) {
+inline void Matrix3::set_column(int index, const float col[3]) {
     m[index] = col[0];
     m[index + 3] = col[1];
     m[index + 6] = col[2];
 }
 
-inline void Matrix3::setColumn(int index, const Vector3& v) {
+inline void Matrix3::set_column(int index, const Vector3& v) {
     m[index] = v.x;
     m[index + 3] = v.y;
     m[index + 6] = v.z;
@@ -565,41 +565,41 @@ inline void Matrix4::set(float xx, float xy, float xz, float xw, float yx,
     m[15] = ww;
 }
 
-inline void Matrix4::setRow(int index, const float row[4]) {
+inline void Matrix4::set_row(int index, const float row[4]) {
     m[index * 4] = row[0];
     m[index * 4 + 1] = row[1];
     m[index * 4 + 2] = row[2];
     m[index * 4 + 3] = row[3];
 }
 
-inline void Matrix4::setRow(int index, const Vector4& v) {
+inline void Matrix4::set_row(int index, const Vector4& v) {
     m[index * 4] = v.x;
     m[index * 4 + 1] = v.y;
     m[index * 4 + 2] = v.z;
     m[index * 4 + 3] = v.w;
 }
 
-inline void Matrix4::setRow(int index, const Vector3& v) {
+inline void Matrix4::set_row(int index, const Vector3& v) {
     m[index * 4] = v.x;
     m[index * 4 + 1] = v.y;
     m[index * 4 + 2] = v.z;
 }
 
-inline void Matrix4::setColumn(int index, const float col[4]) {
+inline void Matrix4::set_column(int index, const float col[4]) {
     m[index] = col[0];
     m[index + 4] = col[1];
     m[index + 8] = col[2];
     m[index + 12] = col[3];
 }
 
-inline void Matrix4::setColumn(int index, const Vector4& v) {
+inline void Matrix4::set_column(int index, const Vector4& v) {
     m[index] = v.x;
     m[index + 4] = v.y;
     m[index + 8] = v.z;
     m[index + 12] = v.w;
 }
 
-inline void Matrix4::setColumn(int index, const Vector3& v) {
+inline void Matrix4::set_column(int index, const Vector3& v) {
     m[index] = v.x;
     m[index + 4] = v.y;
     m[index + 8] = v.z;
@@ -607,7 +607,7 @@ inline void Matrix4::setColumn(int index, const Vector3& v) {
 
 inline const float* Matrix4::get() const { return m; }
 
-inline const float* Matrix4::getTranspose() {
+inline const float* Matrix4::get_transpose() {
     tm[0] = m[0];
     tm[1] = m[4];
     tm[2] = m[8];

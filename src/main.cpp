@@ -8,9 +8,9 @@
 #include <string>
 #include <vector>
 
-#include "Matrices.hpp"
-#include "Vectors.hpp"
+#include "matrix.hpp"
 #include "shaders.hpp"
+#include "vector.hpp"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
@@ -28,52 +28,52 @@ bool mouse_pressed = false;
 int starting_press_x = -1;
 int starting_press_y = -1;
 
-enum TransMode {
-    GeoTranslation = 0,
-    GeoRotation = 1,
-    GeoScaling = 2,
-    ViewCenter = 3,
-    ViewEye = 4,
-    ViewUp = 5,
+enum class TransMode {
+    GeoTranslation,
+    GeoRotation,
+    GeoScaling,
+    ViewCenter,
+    ViewEye,
+    ViewUp,
 };
 
-GLint iLocMVP;
+GLint i_loc_mvp;
 
-vector<string> filenames; // .obj filename list
+vector<string> filenames;
 
-struct model {
+struct Model {
     Vector3 position = Vector3(0, 0, 0);
     Vector3 scale = Vector3(1, 1, 1);
     Vector3 rotation = Vector3(0, 0, 0); // Euler form
 };
-vector<model> models;
+vector<Model> models;
 
-struct camera {
+struct Camera {
     Vector3 position;
     Vector3 center;
     Vector3 up_vector;
 };
-camera main_camera;
+Camera main_camera;
 
-struct project_setting {
+struct ProjectSettings {
     GLfloat nearClip, farClip;
     GLfloat fovy;
     GLfloat aspect;
     GLfloat left, right, top, bottom;
 };
-project_setting proj;
+ProjectSettings proj;
 
-enum ProjMode {
-    Orthogonal = 0,
-    Perspective = 1,
+enum class ProjMode {
+    Orthogonal,
+    Perspective,
 };
-ProjMode cur_proj_mode = Orthogonal;
-TransMode cur_trans_mode = GeoTranslation;
+ProjMode cur_proj_mode = ProjMode::Orthogonal;
+TransMode cur_trans_mode = TransMode::GeoTranslation;
 
 Matrix4 view_matrix;
 Matrix4 project_matrix;
 
-typedef struct {
+struct Shape {
     GLuint vao;
     GLuint vbo;
     GLuint vboTex;
@@ -84,13 +84,13 @@ typedef struct {
     int materialId;
     int indexCount;
     GLuint m_texture;
-} Shape;
+};
 Shape quad;
 Shape m_shpae;
 vector<Shape> m_shape_list;
 int cur_idx = 0; // represent which model should be rendered now
 
-static GLvoid Normalize(GLfloat v[3]) {
+GLvoid normalize(GLfloat v[3]) {
     GLfloat l;
 
     l = (GLfloat)sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
@@ -99,7 +99,7 @@ static GLvoid Normalize(GLfloat v[3]) {
     v[2] /= l;
 }
 
-static GLvoid Cross(GLfloat u[3], GLfloat v[3], GLfloat n[3]) {
+GLvoid cross(GLfloat u[3], GLfloat v[3], GLfloat n[3]) {
 
     n[0] = u[1] * v[2] - u[2] * v[1];
     n[1] = u[2] * v[0] - u[0] * v[2];
@@ -134,7 +134,7 @@ Matrix4 scaling(Vector3 vec) {
 
 // [TODO] given a float value then ouput a rotation matrix alone axis-X (rotate
 // alone axis-X)
-Matrix4 rotateX(GLfloat val) {
+Matrix4 rotate_x(GLfloat val) {
     Matrix4 mat;
 
     /*
@@ -148,7 +148,7 @@ Matrix4 rotateX(GLfloat val) {
 
 // [TODO] given a float value then ouput a rotation matrix alone axis-Y (rotate
 // alone axis-Y)
-Matrix4 rotateY(GLfloat val) {
+Matrix4 rotate_y(GLfloat val) {
     Matrix4 mat;
 
     /*
@@ -162,7 +162,7 @@ Matrix4 rotateY(GLfloat val) {
 
 // [TODO] given a float value then ouput a rotation matrix alone axis-Z (rotate
 // alone axis-Z)
-Matrix4 rotateZ(GLfloat val) {
+Matrix4 rotate_z(GLfloat val) {
     Matrix4 mat;
 
     /*
@@ -175,36 +175,36 @@ Matrix4 rotateZ(GLfloat val) {
 }
 
 Matrix4 rotate(Vector3 vec) {
-    return rotateX(vec.x) * rotateY(vec.y) * rotateZ(vec.z);
+    return rotate_x(vec.x) * rotate_y(vec.y) * rotate_z(vec.z);
 }
 
 // [TODO] compute viewing matrix accroding to the setting of main_camera
-void setViewingMatrix() {
+void set_viewing_matrix() {
     // view_matrix[...] = ...
 }
 
 // [TODO] compute orthogonal projection matrix
-void setOrthogonal() {
-    cur_proj_mode = Orthogonal;
+void set_orthogonal() {
+    cur_proj_mode = ProjMode::Orthogonal;
     // project_matrix [...] = ...
 }
 
 // [TODO] compute persepective projection matrix
-void setPerspective() {
-    cur_proj_mode = Perspective;
+void set_perspective() {
+    cur_proj_mode = ProjMode::Perspective;
     // project_matrix [...] = ...
 }
 
 // Vertex buffers
-GLuint VAO, VBO;
+GLuint vao, vbo;
 
 // Call back function for window reshape
-void ChangeSize(GLFWwindow* window, int width, int height) {
+void change_size(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
     // [TODO] change your aspect ratio
 }
 
-void drawPlane() {
+void draw_plane() {
     GLfloat vertices[18]{1.0, -0.9, -1.0, 1.0,  -0.9, 1.0, -1.0, -0.9, -1.0,
                          1.0, -0.9, 1.0,  -1.0, -0.9, 1.0, -1.0, -0.9, -1.0};
 
@@ -215,45 +215,45 @@ void drawPlane() {
 }
 
 // Render function for display rendering
-void RenderScene(void) {
+void render_scene() {
     // clear canvas
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    Matrix4 T, R, S;
+    Matrix4 t, r, s;
     // [TODO] update translation, rotation and scaling
 
-    Matrix4 MVP;
-    GLfloat mvp[16];
+    Matrix4 mvp;
+    GLfloat mvp_arr[16];
 
     // [TODO] multiply all the matrix
     // [TODO] row-major ---> column-major
 
-    mvp[0] = 1;
-    mvp[4] = 0;
-    mvp[8] = 0;
-    mvp[12] = 0;
-    mvp[1] = 0;
-    mvp[5] = 1;
-    mvp[9] = 0;
-    mvp[13] = 0;
-    mvp[2] = 0;
-    mvp[6] = 0;
-    mvp[10] = 1;
-    mvp[14] = 0;
-    mvp[3] = 0;
-    mvp[7] = 0;
-    mvp[11] = 0;
-    mvp[15] = 1;
+    mvp_arr[0] = 1;
+    mvp_arr[4] = 0;
+    mvp_arr[8] = 0;
+    mvp_arr[12] = 0;
+    mvp_arr[1] = 0;
+    mvp_arr[5] = 1;
+    mvp_arr[9] = 0;
+    mvp_arr[13] = 0;
+    mvp_arr[2] = 0;
+    mvp_arr[6] = 0;
+    mvp_arr[10] = 1;
+    mvp_arr[14] = 0;
+    mvp_arr[3] = 0;
+    mvp_arr[7] = 0;
+    mvp_arr[11] = 0;
+    mvp_arr[15] = 1;
 
     // use uniform to send mvp to vertex shader
-    glUniformMatrix4fv(iLocMVP, 1, GL_FALSE, mvp);
+    glUniformMatrix4fv(i_loc_mvp, 1, GL_FALSE, mvp_arr);
     glBindVertexArray(m_shape_list[cur_idx].vao);
     glDrawArrays(GL_TRIANGLES, 0, m_shape_list[cur_idx].vertex_count);
-    drawPlane();
+    draw_plane();
 }
 
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action,
-                 int mods) {
+void key_callback(GLFWwindow* window, int key, int scancode, int action,
+                  int mods) {
     // [TODO] Call back function for keyboard
 }
 
@@ -270,7 +270,7 @@ static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
     // [TODO] cursor position callback function
 }
 
-void setShaders() {
+void set_shaders() {
     GLuint v, f, p;
     const char* vs = NULL;
     const char* fs = NULL;
@@ -278,22 +278,22 @@ void setShaders() {
     v = glCreateShader(GL_VERTEX_SHADER);
     f = glCreateShader(GL_FRAGMENT_SHADER);
 
-    vs = resources::shader_vs.c_str();
-    fs = resources::shader_fs.c_str();
+    vs = resources::SHADER_VS.c_str();
+    fs = resources::SHADER_FS.c_str();
 
     glShaderSource(v, 1, (const GLchar**)&vs, NULL);
     glShaderSource(f, 1, (const GLchar**)&fs, NULL);
 
     GLint success;
-    char infoLog[1000];
+    char info_log[1000];
     // compile vertex shader
     glCompileShader(v);
     // check for shader compile errors
     glGetShaderiv(v, GL_COMPILE_STATUS, &success);
     if (!success) {
-        glGetShaderInfoLog(v, 1000, NULL, infoLog);
+        glGetShaderInfoLog(v, 1000, NULL, info_log);
         std::cout << "ERROR: VERTEX SHADER COMPILATION FAILED\n"
-                  << infoLog << "\n";
+                  << info_log << "\n";
     }
 
     // compile fragment shader
@@ -301,9 +301,9 @@ void setShaders() {
     // check for shader compile errors
     glGetShaderiv(f, GL_COMPILE_STATUS, &success);
     if (!success) {
-        glGetShaderInfoLog(f, 1000, NULL, infoLog);
+        glGetShaderInfoLog(f, 1000, NULL, info_log);
         std::cout << "ERROR: FRAGMENT SHADER COMPILATION FAILED\n"
-                  << infoLog << "\n";
+                  << info_log << "\n";
     }
 
     // create program object
@@ -318,15 +318,15 @@ void setShaders() {
     // check for linking errors
     glGetProgramiv(p, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(p, 1000, NULL, infoLog);
+        glGetProgramInfoLog(p, 1000, NULL, info_log);
         std::cout << "ERROR: SHADER PROGRAM LINKING FAILED\n"
-                  << infoLog << "\n";
+                  << info_log << "\n";
     }
 
     glDeleteShader(v);
     glDeleteShader(f);
 
-    iLocMVP = glGetUniformLocation(p, "mvp");
+    i_loc_mvp = glGetUniformLocation(p, "mvp");
 
     if (success)
         glUseProgram(p);
@@ -338,74 +338,74 @@ void setShaders() {
 
 void normalization(tinyobj::attrib_t* attrib, vector<GLfloat>& vertices,
                    vector<GLfloat>& colors, tinyobj::shape_t* shape) {
-    vector<float> xVector, yVector, zVector;
-    float minX = 10000, maxX = -10000, minY = 10000, maxY = -10000,
-          minZ = 10000, maxZ = -10000;
+    vector<float> xs, ys, zs;
+    float min_x = 10000, max_x = -10000, min_y = 10000, max_y = -10000,
+          min_z = 10000, max_z = -10000;
 
     // find out min and max value of X, Y and Z axis
     for (int i = 0; i < attrib->vertices.size(); i++) {
         // maxs = max(maxs, attrib->vertices.at(i));
         if (i % 3 == 0) {
 
-            xVector.push_back(attrib->vertices.at(i));
+            xs.push_back(attrib->vertices.at(i));
 
-            if (attrib->vertices.at(i) < minX) {
-                minX = attrib->vertices.at(i);
+            if (attrib->vertices.at(i) < min_x) {
+                min_x = attrib->vertices.at(i);
             }
 
-            if (attrib->vertices.at(i) > maxX) {
-                maxX = attrib->vertices.at(i);
+            if (attrib->vertices.at(i) > max_x) {
+                max_x = attrib->vertices.at(i);
             }
         } else if (i % 3 == 1) {
-            yVector.push_back(attrib->vertices.at(i));
+            ys.push_back(attrib->vertices.at(i));
 
-            if (attrib->vertices.at(i) < minY) {
-                minY = attrib->vertices.at(i);
+            if (attrib->vertices.at(i) < min_y) {
+                min_y = attrib->vertices.at(i);
             }
 
-            if (attrib->vertices.at(i) > maxY) {
-                maxY = attrib->vertices.at(i);
+            if (attrib->vertices.at(i) > max_y) {
+                max_y = attrib->vertices.at(i);
             }
         } else if (i % 3 == 2) {
-            zVector.push_back(attrib->vertices.at(i));
+            zs.push_back(attrib->vertices.at(i));
 
-            if (attrib->vertices.at(i) < minZ) {
-                minZ = attrib->vertices.at(i);
+            if (attrib->vertices.at(i) < min_z) {
+                min_z = attrib->vertices.at(i);
             }
 
-            if (attrib->vertices.at(i) > maxZ) {
-                maxZ = attrib->vertices.at(i);
+            if (attrib->vertices.at(i) > max_z) {
+                max_z = attrib->vertices.at(i);
             }
         }
     }
 
-    float offsetX = (maxX + minX) / 2;
-    float offsetY = (maxY + minY) / 2;
-    float offsetZ = (maxZ + minZ) / 2;
+    float offset_x = (max_x + min_x) / 2;
+    float offset_y = (max_y + min_y) / 2;
+    float offset_z = (max_z + min_z) / 2;
 
     for (int i = 0; i < attrib->vertices.size(); i++) {
-        if (offsetX != 0 && i % 3 == 0) {
-            attrib->vertices.at(i) = attrib->vertices.at(i) - offsetX;
-        } else if (offsetY != 0 && i % 3 == 1) {
-            attrib->vertices.at(i) = attrib->vertices.at(i) - offsetY;
-        } else if (offsetZ != 0 && i % 3 == 2) {
-            attrib->vertices.at(i) = attrib->vertices.at(i) - offsetZ;
+        if (offset_x != 0 && i % 3 == 0) {
+            attrib->vertices.at(i) = attrib->vertices.at(i) - offset_x;
+        } else if (offset_y != 0 && i % 3 == 1) {
+            attrib->vertices.at(i) = attrib->vertices.at(i) - offset_y;
+        } else if (offset_z != 0 && i % 3 == 2) {
+            attrib->vertices.at(i) = attrib->vertices.at(i) - offset_z;
         }
     }
 
-    float greatestAxis = maxX - minX;
-    float distanceOfYAxis = maxY - minY;
-    float distanceOfZAxis = maxZ - minZ;
+    float greatest_axis = max_x - min_x;
+    float dist_y_axis = max_y - min_y;
+    float dist_z_axis = max_z - min_z;
 
-    if (distanceOfYAxis > greatestAxis) {
-        greatestAxis = distanceOfYAxis;
+    if (dist_y_axis > greatest_axis) {
+        greatest_axis = dist_y_axis;
     }
 
-    if (distanceOfZAxis > greatestAxis) {
-        greatestAxis = distanceOfZAxis;
+    if (dist_z_axis > greatest_axis) {
+        greatest_axis = dist_z_axis;
     }
 
-    float scale = greatestAxis / 2;
+    float scale = greatest_axis / 2;
 
     for (int i = 0; i < attrib->vertices.size(); i++) {
         // std::cout << i << " = " << (double)(attrib.vertices.at(i) /
@@ -435,7 +435,7 @@ void normalization(tinyobj::attrib_t* attrib, vector<GLfloat>& vertices,
     }
 }
 
-void LoadModels(string model_path) {
+void load_models(string model_path) {
     vector<tinyobj::shape_t> shapes;
     vector<tinyobj::material_t> materials;
     tinyobj::attrib_t attrib;
@@ -483,7 +483,7 @@ void LoadModels(string model_path) {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     m_shape_list.push_back(tmp_shape);
-    model tmp_model;
+    Model tmp_model;
     models.push_back(tmp_model);
 
     glEnableVertexAttribArray(0);
@@ -493,7 +493,7 @@ void LoadModels(string model_path) {
     materials.clear();
 }
 
-void initParameter() {
+void init_parameter() {
     proj.left = -1;
     proj.right = 1;
     proj.top = 1;
@@ -507,14 +507,14 @@ void initParameter() {
     main_camera.center = Vector3(0.0f, 0.0f, 0.0f);
     main_camera.up_vector = Vector3(0.0f, 1.0f, 0.0f);
 
-    setViewingMatrix();
-    setPerspective(); // set default projection matrix as perspective matrix
+    set_viewing_matrix();
+    set_perspective(); // set default projection matrix as perspective matrix
 }
 
-void setupRC() {
+void setup_render_context() {
     // setup shaders
-    setShaders();
-    initParameter();
+    set_shaders();
+    init_parameter();
 
     // OpenGL States and Values
     glClearColor(0.2, 0.2, 0.2, 1.0);
@@ -523,22 +523,22 @@ void setupRC() {
         "./ColorModels/lucy25KC.obj", "./ColorModels/teapot4KC.obj",
         "./ColorModels/dolphinC.obj"};
     // [TODO] Load five model at here
-    LoadModels(model_list[cur_idx]);
+    load_models(model_list[cur_idx]);
 }
 
-void glPrintContextInfo(bool printExtension) {
-    cout << "GL_VENDOR = " << (const char*)glGetString(GL_VENDOR) << "\n";
-    cout << "GL_RENDERER = " << (const char*)glGetString(GL_RENDERER) << "\n";
-    cout << "GL_VERSION = " << (const char*)glGetString(GL_VERSION) << "\n";
+void gl_print_context_info(bool printExtension) {
+    cout << "GL_VENDOR = " << glGetString(GL_VENDOR) << "\n";
+    cout << "GL_RENDERER = " << glGetString(GL_RENDERER) << "\n";
+    cout << "GL_VERSION = " << glGetString(GL_VERSION) << "\n";
     cout << "GL_SHADING_LANGUAGE_VERSION = "
-         << (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
+         << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
     if (printExtension) {
-        GLint numExt;
-        glGetIntegerv(GL_NUM_EXTENSIONS, &numExt);
+        GLint num_ext;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &num_ext);
         cout << "GL_EXTENSIONS ="
              << "\n";
-        for (GLint i = 0; i < numExt; i++) {
-            cout << "\t" << (const char*)glGetStringi(GL_EXTENSIONS, i) << "\n";
+        for (GLint i = 0; i < num_ext; i++) {
+            cout << "\t" << glGetStringi(GL_EXTENSIONS, i) << "\n";
         }
     }
 }
@@ -551,8 +551,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,
-                   GL_TRUE); // fix compilation on OS X
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     // create window
@@ -574,20 +573,20 @@ int main(int argc, char** argv) {
     }
 
     // register glfw callback functions
-    glfwSetKeyCallback(window, KeyCallback);
+    glfwSetKeyCallback(window, key_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
 
-    glfwSetFramebufferSizeCallback(window, ChangeSize);
+    glfwSetFramebufferSizeCallback(window, change_size);
     glEnable(GL_DEPTH_TEST);
     // Setup render context
-    setupRC();
+    setup_render_context();
 
     // main loop
     while (!glfwWindowShouldClose(window)) {
         // render
-        RenderScene();
+        render_scene();
 
         // swap buffer from back to front
         glfwSwapBuffers(window);

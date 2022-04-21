@@ -1,7 +1,7 @@
 #include <string>
 
 namespace resources {
-const std::string shader_vs = R"(
+const std::string SHADER_VS = R"(
 #version 330 core
 
 layout (location = 0) in vec3 aPos;
@@ -19,7 +19,7 @@ void main()
 
 )";
 
-const std::string shader_fs = R"(
+const std::string SHADER_FS = R"(
 // vim: set ft=glsl:
 
 #version 330 core
@@ -32,4 +32,4 @@ void main() {
 }
 )";
 
-} // namespace resources
+}
