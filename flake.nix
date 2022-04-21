@@ -29,6 +29,7 @@
         };
         devShell = pkgs.mkShell {
           buildInputs = deps ++ dev-deps;
+          CMAKE_EXPORT_COMPILE_COMMANDS = "yes";
         };
       });
 }
