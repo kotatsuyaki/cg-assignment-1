@@ -533,13 +533,13 @@ void setup_render_context() {
     load_models(model_list[cur_idx]);
 }
 
-void gl_print_context_info(bool printExtension) {
+void gl_print_context_info(bool print_extension) {
     cout << "GL_VENDOR = " << glGetString(GL_VENDOR) << "\n";
     cout << "GL_RENDERER = " << glGetString(GL_RENDERER) << "\n";
     cout << "GL_VERSION = " << glGetString(GL_VERSION) << "\n";
     cout << "GL_SHADING_LANGUAGE_VERSION = "
          << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
-    if (printExtension) {
+    if (print_extension) {
         GLint num_ext;
         glGetIntegerv(GL_NUM_EXTENSIONS, &num_ext);
         cout << "GL_EXTENSIONS ="
