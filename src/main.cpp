@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -19,10 +20,11 @@ using std::cerr;
 using std::cout;
 using std::string;
 using std::vector;
+namespace fs = std::filesystem;
 
 // Default window size
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 600;
+constexpr int WINDOW_WIDTH = 800;
+constexpr int WINDOW_HEIGHT = 600;
 
 bool mouse_pressed = false;
 int starting_press_x = -1;
@@ -518,10 +520,15 @@ void setup_render_context() {
 
     // OpenGL States and Values
     glClearColor(0.2, 0.2, 0.2, 1.0);
-    vector<string> model_list{
-        "./ColorModels/bunny5KC.obj", "./ColorModels/dragon10KC.obj",
-        "./ColorModels/lucy25KC.obj", "./ColorModels/teapot4KC.obj",
-        "./ColorModels/dolphinC.obj"};
+
+    vector<string> model_list{};
+    for (auto const& entry : fs::recursive_directory_iterator("./")) {
+        if (entry.path().extension().string() == ".obj") {
+            cout << entry.path().string() << "\n";
+            model_list.push_back(entry.path().string());
+        }
+    }
+
     // [TODO] Load five model at here
     load_models(model_list[cur_idx]);
 }
@@ -556,7 +563,7 @@ int main(int argc, char** argv) {
 
     // create window
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT,
-                                          "Student ID HW1", NULL, NULL);
+                                          "107021129 HW1", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window"
                   << "\n";
