@@ -41,8 +41,17 @@ class Window final {
            int height = DEFAULT_HEIGHT);
     ~Window();
 
+    // Prevent copy, allow move
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
+    Window(Window&&) = default;
+    Window& operator=(Window&&) = default;
+
     // Runs the main loop until the close flag of the window is set.
-    void loop(std::function<void()> body);
+    void loop(std::function<void()> body) const;
+
+    // Makes the context of this window the current context
+    void make_current() const;
 
     // Sets callbacks that are going to be called.
     // Must not be called while `loop` is running.

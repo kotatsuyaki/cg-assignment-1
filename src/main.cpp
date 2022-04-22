@@ -6,7 +6,8 @@
 #include <vector>
 
 #include "matrix.hpp"
-#include "shaders.hpp"
+#include "resources.hpp"
+#include "shader.hpp"
 #include "vector.hpp"
 #include "window.hpp"
 
@@ -246,68 +247,6 @@ void render_scene() {
     draw_plane();
 }
 
-void set_shaders() {
-    GLuint v, f, p;
-    const char* vs = nullptr;
-    const char* fs = nullptr;
-
-    v = glCreateShader(GL_VERTEX_SHADER);
-    f = glCreateShader(GL_FRAGMENT_SHADER);
-
-    vs = resources::SHADER_VS.c_str();
-    fs = resources::SHADER_FS.c_str();
-
-    glShaderSource(v, 1, (const GLchar**)&vs, nullptr);
-    glShaderSource(f, 1, (const GLchar**)&fs, nullptr);
-
-    GLint success;
-    char info_log[1000];
-    // compile vertex shader
-    glCompileShader(v);
-    // check for shader compile errors
-    glGetShaderiv(v, GL_COMPILE_STATUS, &success);
-    if (success == GL_FALSE) {
-        glGetShaderInfoLog(v, 1000, nullptr, info_log);
-        std::cout << "ERROR: VERTEX SHADER COMPILATION FAILED\n" << info_log << "\n";
-    }
-
-    // compile fragment shader
-    glCompileShader(f);
-    // check for shader compile errors
-    glGetShaderiv(f, GL_COMPILE_STATUS, &success);
-    if (success == GL_FALSE) {
-        glGetShaderInfoLog(f, 1000, nullptr, info_log);
-        std::cout << "ERROR: FRAGMENT SHADER COMPILATION FAILED\n" << info_log << "\n";
-    }
-
-    // create program object
-    p = glCreateProgram();
-
-    // attach shaders to program object
-    glAttachShader(p, f);
-    glAttachShader(p, v);
-
-    // link program
-    glLinkProgram(p);
-    // check for linking errors
-    glGetProgramiv(p, GL_LINK_STATUS, &success);
-    if (success == GL_FALSE) {
-        glGetProgramInfoLog(p, 1000, nullptr, info_log);
-        std::cout << "ERROR: SHADER PROGRAM LINKING FAILED\n" << info_log << "\n";
-    }
-
-    glDeleteShader(v);
-    glDeleteShader(f);
-
-    i_loc_mvp = glGetUniformLocation(p, "mvp");
-
-    if (success == GL_TRUE) {
-        glUseProgram(p);
-    } else {
-        throw std::runtime_error("Failed to compile shader");
-    }
-}
-
 void normalization(tinyobj::attrib_t* attrib, vector<GLfloat>& vertices, vector<GLfloat>& colors,
                    tinyobj::shape_t* shape) {
     vector<float> xs, ys, zs;
@@ -481,26 +420,6 @@ void init_parameter() {
     set_perspective(); // set default projection matrix as perspective matrix
 }
 
-void setup_render_context() {
-    // setup shaders
-    set_shaders();
-    init_parameter();
-
-    // OpenGL States and Values
-    glClearColor(0.2, 0.2, 0.2, 1.0);
-
-    vector<string> model_list{};
-    for (auto const& entry : fs::recursive_directory_iterator("./")) {
-        if (entry.path().extension().string() == ".obj") {
-            cout << entry.path().string() << "\n";
-            model_list.push_back(entry.path().string());
-        }
-    }
-
-    // [TODO] Load five model at here
-    load_models(model_list[cur_idx]);
-}
-
 void gl_print_context_info(bool print_extension) {
     cout << "GL_VENDOR = " << glGetString(GL_VENDOR) << "\n";
     cout << "GL_RENDERER = " << glGetString(GL_RENDERER) << "\n";
@@ -527,9 +446,21 @@ int main(int argc, char** argv) {
     window.set_cursor_pos_callback([](double xpos, double ypos) {});
     window.set_fb_size_callback([](int width, int height) { glViewport(0, 0, width, height); });
 
+    window.make_current();
+
+    Shader shader{window, resources::SHADER_VS, resources::SHADER_FS};
+    i_loc_mvp = shader.uniform_location("mvp");
     glEnable(GL_DEPTH_TEST);
-    // Setup render context
-    setup_render_context();
+    glClearColor(0.2, 0.2, 0.2, 1.0);
+
+    vector<string> model_list{};
+    for (auto const& entry : fs::recursive_directory_iterator("./")) {
+        if (entry.path().extension().string() == ".obj") {
+            cout << entry.path().string() << "\n";
+            model_list.push_back(entry.path().string());
+        }
+    }
+    load_models(model_list[cur_idx]);
 
     // main loop
     window.loop([]() { render_scene(); });

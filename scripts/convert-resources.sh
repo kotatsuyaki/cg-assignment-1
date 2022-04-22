@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BASEDIR=$(dirname $(readlink -f -- "$0"))/../
-SRCFILE=$BASEDIR/src/shaders.hpp
+SRCFILE=$BASEDIR/src/resources.hpp
 
 cat <<EOF > $SRCFILE
 #include <string>

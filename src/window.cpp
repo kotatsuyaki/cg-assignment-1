@@ -109,12 +109,20 @@ Window::Window(const Glfw& glfw, std::string title, int width, int height) {
 
 Window::~Window() {}
 
-void Window::loop(std::function<void()> body) {
-    while (glfwWindowShouldClose(impl->window.get()) == GLFW_FALSE) {
+void Window::loop(std::function<void()> body) const {
+    auto window = impl->window.get();
+    glfwMakeContextCurrent(window);
+
+    while (glfwWindowShouldClose(window) == GLFW_FALSE) {
         body();
-        glfwSwapBuffers(impl->window.get());
+        glfwSwapBuffers(window);
         glfwPollEvents();
     }
+}
+
+void Window::make_current() const {
+    auto window = impl->window.get();
+    glfwMakeContextCurrent(window);
 }
 
 void Window::set_key_callback(KeyCallback callback) { impl->_key_callback = callback; }
