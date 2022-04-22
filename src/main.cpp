@@ -1,20 +1,20 @@
 #include <glad/glad.h>
 
-#include <GLFW/glfw3.h>
-
 #include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "matrix.hpp"
 #include "shaders.hpp"
 #include "vector.hpp"
+#include "window.hpp"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
+#include <tinyobjloader/tiny_obj_loader.h>
 
 using std::cerr;
 using std::cout;
@@ -198,12 +198,6 @@ void set_perspective() {
 // Vertex buffers
 GLuint vao, vbo;
 
-// Call back function for window reshape
-void change_size(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-    // [TODO] change your aspect ratio
-}
-
 void draw_plane() {
     GLfloat vertices[18]{1.0, -0.9, -1.0, 1.0,  -0.9, 1.0, -1.0, -0.9, -1.0,
                          1.0, -0.9, 1.0,  -1.0, -0.9, 1.0, -1.0, -0.9, -1.0};
@@ -252,22 +246,6 @@ void render_scene() {
     draw_plane();
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    // [TODO] Call back function for keyboard
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    // [TODO] scroll up positive, otherwise it would be negtive
-}
-
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    // [TODO] mouse press callback function
-}
-
-static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
-    // [TODO] cursor position callback function
-}
-
 void set_shaders() {
     GLuint v, f, p;
     const char* vs = NULL;
@@ -288,7 +266,7 @@ void set_shaders() {
     glCompileShader(v);
     // check for shader compile errors
     glGetShaderiv(v, GL_COMPILE_STATUS, &success);
-    if (!success) {
+    if (success == GL_FALSE) {
         glGetShaderInfoLog(v, 1000, NULL, info_log);
         std::cout << "ERROR: VERTEX SHADER COMPILATION FAILED\n" << info_log << "\n";
     }
@@ -297,7 +275,7 @@ void set_shaders() {
     glCompileShader(f);
     // check for shader compile errors
     glGetShaderiv(f, GL_COMPILE_STATUS, &success);
-    if (!success) {
+    if (success == GL_FALSE) {
         glGetShaderInfoLog(f, 1000, NULL, info_log);
         std::cout << "ERROR: FRAGMENT SHADER COMPILATION FAILED\n" << info_log << "\n";
     }
@@ -313,7 +291,7 @@ void set_shaders() {
     glLinkProgram(p);
     // check for linking errors
     glGetProgramiv(p, GL_LINK_STATUS, &success);
-    if (!success) {
+    if (success == GL_FALSE) {
         glGetProgramInfoLog(p, 1000, NULL, info_log);
         std::cout << "ERROR: SHADER PROGRAM LINKING FAILED\n" << info_log << "\n";
     }
@@ -323,11 +301,10 @@ void set_shaders() {
 
     i_loc_mvp = glGetUniformLocation(p, "mvp");
 
-    if (success)
+    if (success == GL_TRUE) {
         glUseProgram(p);
-    else {
-        system("pause");
-        exit(123);
+    } else {
+        throw std::runtime_error("Failed to compile shader");
     }
 }
 
@@ -541,56 +518,21 @@ void gl_print_context_info(bool print_extension) {
 }
 
 int main(int argc, char** argv) {
-    // initial glfw
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    Glfw glfw{};
+    Window window{glfw, "107021129 HW1"};
 
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
+    window.set_key_callback([](int key, int scancode, int action, int mods) {});
+    window.set_scroll_callback([](double xoffset, double yoffset) {});
+    window.set_mouse_button_callback([](int button, int action, int mods) {});
+    window.set_cursor_pos_callback([](double xpos, double ypos) {});
+    window.set_fb_size_callback([](int width, int height) { glViewport(0, 0, width, height); });
 
-    // create window
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "107021129 HW1", NULL, NULL);
-    if (window == NULL) {
-        std::cout << "Failed to create GLFW window"
-                  << "\n";
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    // load OpenGL function pointer
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD"
-                  << "\n";
-        return -1;
-    }
-
-    // register glfw callback functions
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetCursorPosCallback(window, cursor_pos_callback);
-
-    glfwSetFramebufferSizeCallback(window, change_size);
     glEnable(GL_DEPTH_TEST);
     // Setup render context
     setup_render_context();
 
     // main loop
-    while (!glfwWindowShouldClose(window)) {
-        // render
-        render_scene();
+    window.loop([]() { render_scene(); });
 
-        // swap buffer from back to front
-        glfwSwapBuffers(window);
-
-        // Poll input event
-        glfwPollEvents();
-    }
-
-    // just for compatibiliy purposes
     return 0;
 }
