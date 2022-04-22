@@ -1,8 +1,5 @@
-#include <glad/glad.h>
-
-#include <cmath>
+#include <cstdlib>
 #include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -13,11 +10,14 @@
 #include "vector.hpp"
 #include "window.hpp"
 
+#include <glad/glad.h>
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
 using std::cerr;
 using std::cout;
+using std::size_t;
 using std::string;
 using std::vector;
 namespace fs = std::filesystem;
@@ -248,8 +248,8 @@ void render_scene() {
 
 void set_shaders() {
     GLuint v, f, p;
-    const char* vs = NULL;
-    const char* fs = NULL;
+    const char* vs = nullptr;
+    const char* fs = nullptr;
 
     v = glCreateShader(GL_VERTEX_SHADER);
     f = glCreateShader(GL_FRAGMENT_SHADER);
@@ -257,8 +257,8 @@ void set_shaders() {
     vs = resources::SHADER_VS.c_str();
     fs = resources::SHADER_FS.c_str();
 
-    glShaderSource(v, 1, (const GLchar**)&vs, NULL);
-    glShaderSource(f, 1, (const GLchar**)&fs, NULL);
+    glShaderSource(v, 1, (const GLchar**)&vs, nullptr);
+    glShaderSource(f, 1, (const GLchar**)&fs, nullptr);
 
     GLint success;
     char info_log[1000];
@@ -267,7 +267,7 @@ void set_shaders() {
     // check for shader compile errors
     glGetShaderiv(v, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE) {
-        glGetShaderInfoLog(v, 1000, NULL, info_log);
+        glGetShaderInfoLog(v, 1000, nullptr, info_log);
         std::cout << "ERROR: VERTEX SHADER COMPILATION FAILED\n" << info_log << "\n";
     }
 
@@ -276,7 +276,7 @@ void set_shaders() {
     // check for shader compile errors
     glGetShaderiv(f, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE) {
-        glGetShaderInfoLog(f, 1000, NULL, info_log);
+        glGetShaderInfoLog(f, 1000, nullptr, info_log);
         std::cout << "ERROR: FRAGMENT SHADER COMPILATION FAILED\n" << info_log << "\n";
     }
 
@@ -292,7 +292,7 @@ void set_shaders() {
     // check for linking errors
     glGetProgramiv(p, GL_LINK_STATUS, &success);
     if (success == GL_FALSE) {
-        glGetProgramInfoLog(p, 1000, NULL, info_log);
+        glGetProgramInfoLog(p, 1000, nullptr, info_log);
         std::cout << "ERROR: SHADER PROGRAM LINKING FAILED\n" << info_log << "\n";
     }
 
@@ -428,11 +428,11 @@ void load_models(string model_path) {
     }
 
     if (!ret) {
-        exit(1);
+        std::exit(1);
     }
 
-    printf("Load Models Success ! Shapes size %zu Maerial size %zu\n", shapes.size(),
-           materials.size());
+    std::cout << "Load model success (shapes size = " << shapes.size()
+              << ", material size = " << materials.size() << ")\n";
 
     normalization(&attrib, vertices, colors, &shapes[0]);
 

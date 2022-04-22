@@ -18,8 +18,8 @@
 
 #include "matrix.hpp"
 
-#include <algorithm>
 #include <cmath>
+#include <utility>
 
 const float DEG2RAD = 3.141593f / 180;
 
