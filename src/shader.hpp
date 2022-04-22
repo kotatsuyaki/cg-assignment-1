@@ -4,10 +4,9 @@
 #include <glad/glad.h>
 
 #include <memory>
-#include <string>
 #include <string_view>
 
-#include "window.hpp"
+class Window;
 
 class Shader final {
   public:

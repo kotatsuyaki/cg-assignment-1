@@ -2,6 +2,9 @@
 
 #include <glad/glad.h>
 #include <stdexcept>
+#include <string>
+
+#include "window.hpp"
 
 struct Shader::ShaderImpl {
     GLuint program;
