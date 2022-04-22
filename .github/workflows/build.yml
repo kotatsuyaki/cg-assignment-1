@@ -45,7 +45,7 @@ jobs:
       # Upload
       - uses: actions/upload-artifact@v3
         with:
-          name: ubuntu-bin
+          name: ubuntu-20-bin
           path: proj
 
   build-ubuntu-18:
@@ -70,7 +70,7 @@ jobs:
       # Upload
       - uses: actions/upload-artifact@v3
         with:
-          name: ubuntu-bin
+          name: ubuntu-18-bin
           path: proj
 
   build-macos:
