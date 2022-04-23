@@ -7,6 +7,7 @@
 #include "matrix.hpp"
 #include "model.hpp"
 #include "resources.hpp"
+#include "scene.hpp"
 #include "shader.hpp"
 #include "vector.hpp"
 #include "window.hpp"
@@ -19,6 +20,45 @@ using std::size_t;
 using std::string;
 using std::vector;
 namespace fs = std::filesystem;
+
+ModelList load_models(const Window& window);
+
+int main(int argc, char** argv) {
+    Glfw glfw{};
+    Window window{glfw, "107021129 HW1"};
+
+    window.set_key_callback([](int key, int scancode, int action, int mods) {});
+    window.set_scroll_callback([](double xoffset, double yoffset) {});
+    window.set_mouse_button_callback([](int button, int action, int mods) {});
+    window.set_cursor_pos_callback([](double xpos, double ypos) {});
+    window.set_fb_size_callback([](int width, int height) { glViewport(0, 0, width, height); });
+
+    // Setup shader and scene
+    Shader shader{window, resources::SHADER_VS, resources::SHADER_FS};
+    Scene scene{std::move(shader), Vector3{0.2f, 0.2f, 0.2f}};
+
+    // Load models
+    ModelList models = load_models(window);
+
+    // main loop
+    window.loop([&]() { scene.render(window, models.current()); });
+
+    return 0;
+}
+
+ModelList load_models(const Window& window) {
+    ModelList models{};
+    vector<string> model_list{};
+    for (auto const& entry : fs::recursive_directory_iterator("./")) {
+        if (entry.path().extension().string() == ".obj") {
+            auto path = entry.path().string();
+
+            std::cout << "Loading model from path " << path << "\n";
+            models.push_back(Model(window, path));
+        }
+    }
+    return models;
+}
 
 // Default window size
 constexpr int WINDOW_WIDTH = 800;
@@ -190,85 +230,7 @@ void draw_plane() {
     // [TODO] draw the plane with above vertices and color
 }
 
-// Render function for display rendering
-void render_scene(Model& model) {
-    // clear canvas
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    Matrix4 t, r, s;
-    // [TODO] update translation, rotation and scaling
-
-    Matrix4 mvp;
-    GLfloat mvp_arr[16];
-
-    // [TODO] multiply all the matrix
-    // [TODO] row-major ---> column-major
-
-    mvp_arr[0] = 1;
-    mvp_arr[4] = 0;
-    mvp_arr[8] = 0;
-    mvp_arr[12] = 0;
-    mvp_arr[1] = 0;
-    mvp_arr[5] = 1;
-    mvp_arr[9] = 0;
-    mvp_arr[13] = 0;
-    mvp_arr[2] = 0;
-    mvp_arr[6] = 0;
-    mvp_arr[10] = 1;
-    mvp_arr[14] = 0;
-    mvp_arr[3] = 0;
-    mvp_arr[7] = 0;
-    mvp_arr[11] = 0;
-    mvp_arr[15] = 1;
-
-    // use uniform to send mvp to vertex shader
-    glUniformMatrix4fv(i_loc_mvp, 1, GL_FALSE, mvp_arr);
-    model.draw();
-    draw_plane();
-}
-
 void init_parameter() {
     set_viewing_matrix();
     set_perspective(); // set default projection matrix as perspective matrix
-}
-
-ModelList load_models(const Window& window) {
-    ModelList models{};
-    vector<string> model_list{};
-    for (auto const& entry : fs::recursive_directory_iterator("./")) {
-        if (entry.path().extension().string() == ".obj") {
-            auto path = entry.path().string();
-
-            std::cout << "Loading model from path " << path << "\n";
-            models.push_back(Model(window, path));
-        }
-    }
-    return models;
-}
-
-int main(int argc, char** argv) {
-    Glfw glfw{};
-    Window window{glfw, "107021129 HW1"};
-
-    window.set_key_callback([](int key, int scancode, int action, int mods) {});
-    window.set_scroll_callback([](double xoffset, double yoffset) {});
-    window.set_mouse_button_callback([](int button, int action, int mods) {});
-    window.set_cursor_pos_callback([](double xpos, double ypos) {});
-    window.set_fb_size_callback([](int width, int height) { glViewport(0, 0, width, height); });
-
-    // Setup shader
-    Shader shader{window, resources::SHADER_VS, resources::SHADER_FS};
-    i_loc_mvp = shader.uniform_location("mvp");
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-
-    // Load models
-    ModelList models = load_models(window);
-
-    // main loop
-    window.loop([&models]() { render_scene(models.current()); });
-
-    std::cout << sizeof(Model) << "\n";
-
-    return 0;
 }

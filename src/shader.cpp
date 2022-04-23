@@ -1,20 +1,26 @@
 #include "shader.hpp"
 
-#include <glad/glad.h>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
+
+#include <glad/glad.h>
 
 #include "window.hpp"
 
 struct Shader::ShaderImpl {
     GLuint program;
 
-    ShaderImpl(GLuint program) : program(program) {}
+    // Internal cache for uniform locations
+    std::unordered_map<std::string, GLint> uniform_locations;
+
+    ShaderImpl(GLuint program) : program(program), uniform_locations() {}
     ~ShaderImpl() { glDeleteProgram(program); }
 
     ShaderImpl(const ShaderImpl&) = delete;
     ShaderImpl& operator=(const ShaderImpl&) = delete;
 };
+void Shader::ShaderImplDeleter::operator()(ShaderImpl* ptr) const { delete ptr; }
 
 Shader::Shader(const Window& window, std::string_view vertex_shader_src,
                std::string_view fragment_shader_src) {
@@ -74,11 +80,20 @@ Shader::Shader(const Window& window, std::string_view vertex_shader_src,
     glDeleteShader(f);
     glUseProgram(p);
 
-    impl = std::make_unique<ShaderImpl>(p);
+    impl = std::unique_ptr<ShaderImpl, ShaderImplDeleter>(new ShaderImpl(p));
 }
 
 Shader::~Shader() {}
 
 GLint Shader::uniform_location(std::string_view name) {
-    return glGetUniformLocation(impl->program, static_cast<const GLchar*>(name.data()));
+    const auto it = impl->uniform_locations.find(name.data());
+    if (it == impl->uniform_locations.end()) {
+        // Cache miss, get and insert
+        GLint loc = glGetUniformLocation(impl->program, static_cast<const GLchar*>(name.data()));
+        impl->uniform_locations.insert({name.data(), loc});
+        return loc;
+    } else {
+        // Cache hit, return cached value
+        return it->second;
+    }
 }

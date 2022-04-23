@@ -20,11 +20,15 @@ class Shader final {
     Shader(Shader&&) = default;
     Shader& operator=(Shader&&) = default;
 
+    // Gets the location of a uniform variable.
     GLint uniform_location(std::string_view name);
 
   private:
     struct ShaderImpl;
-    std::unique_ptr<ShaderImpl> impl;
+    struct ShaderImplDeleter {
+        void operator()(ShaderImpl*) const;
+    };
+    std::unique_ptr<ShaderImpl, ShaderImplDeleter> impl;
 };
 
 #endif

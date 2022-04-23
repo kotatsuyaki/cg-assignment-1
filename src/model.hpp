@@ -11,6 +11,7 @@ using std::size_t;
 class Window;
 
 // Wrapper class for OpenGL data buffers.
+// Provides API to draw the buffers.
 class Model final {
   public:
     Model(const Window& window, std::string_view path);

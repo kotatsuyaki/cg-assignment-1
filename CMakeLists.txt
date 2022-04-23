@@ -8,6 +8,7 @@ add_executable(proj
     src/window.cpp
     src/shader.cpp
     src/model.cpp
+    src/scene.cpp
     3rdparty/glad/glad.c
 )
 set_property(TARGET proj PROPERTY CXX_STANDARD 17)
