@@ -6,8 +6,8 @@ env:
 
 name: Build
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  build-windows-22:
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v2
         with:
@@ -23,7 +23,27 @@ jobs:
       # Upload
       - uses: actions/upload-artifact@v3
         with:
-          name: windows-bin
+          name: windows-22-bin
+          path: Release/proj.exe
+
+  build-windows-19:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Install dependencies
+      - uses: microsoft/setup-msbuild@v1.1
+
+      # Configure and build
+      - run: cmake -G "Visual Studio 16 2019" -A x64 .
+      - run: msbuild proj.sln /p:configuration=release
+
+      # Upload
+      - uses: actions/upload-artifact@v3
+        with:
+          name: windows-22-bin
           path: Release/proj.exe
 
   build-ubuntu-20:
