@@ -70,17 +70,18 @@ ProjConfig ProjConfigBuilder::build() const {
 }
 
 struct Scene::SceneImpl {
-    SceneImpl(Shader shader, Vector3 clear_color)
-        : shader(std::move(shader)), clear_color(clear_color) {}
+    SceneImpl(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable)
+        : shader(std::move(shader)), clear_color(clear_color), drawable(std::move(drawable)) {}
     Shader shader;
     Vector3 clear_color;
+    std::unique_ptr<Drawable> drawable;
 };
 
-Scene::Scene(Shader shader, Vector3 clear_color)
-    : impl(std::make_unique<SceneImpl>(std::move(shader), clear_color)) {}
+Scene::Scene(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable)
+    : impl(std::make_unique<SceneImpl>(std::move(shader), clear_color, std::move(drawable))) {}
 Scene::~Scene() = default;
 
-void Scene::render(const Window& window, const Model& model) {
+void Scene::render(const Window& window) {
     window.make_current();
 
     // clear canvas
@@ -117,7 +118,7 @@ void Scene::render(const Window& window, const Model& model) {
     // use uniform to send mvp to vertex shader
     auto mvp_loc = impl->shader.uniform_location("mvp");
     glUniformMatrix4fv(mvp_loc, 1, GL_FALSE, mvp_arr);
-    model.draw();
+    impl->drawable->draw();
 
     // TODO: Implement this
     // draw_plane();

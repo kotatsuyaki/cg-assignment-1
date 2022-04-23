@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "model.hpp"
+#include "drawable.hpp"
 #include "shader.hpp"
 #include "vector.hpp"
 #include "window.hpp"
@@ -59,7 +59,7 @@ class ProjConfigBuilder final {
 // TODO: Break scene into layers
 class Scene final {
   public:
-    Scene(Shader shader, Vector3 clear_color);
+    Scene(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable);
     ~Scene();
 
     // Prevent copy, allow move
@@ -68,13 +68,11 @@ class Scene final {
     Scene(Scene&&) = default;
     Scene& operator=(Scene&&) = default;
 
-    void render(const Window& window, const Model& model);
+    void render(const Window& window);
 
   private:
     struct SceneImpl;
     std::unique_ptr<SceneImpl> impl;
-
-    ModelList models;
 };
 
 #endif
