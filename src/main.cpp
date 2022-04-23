@@ -47,10 +47,29 @@ int main(int argc, char** argv) {
     window.set_scroll_callback([](double xoffset, double yoffset) {});
     window.set_mouse_button_callback([](int button, int action, int mods) {});
     window.set_cursor_pos_callback([](double xpos, double ypos) {});
-    window.set_fb_size_callback([](int width, int height) { glViewport(0, 0, width, height); });
+
+    int view_width = DEFAULT_WIDTH, view_height = DEFAULT_HEIGHT;
+    window.set_fb_size_callback([&](int width, int height) {
+        view_width = width;
+        view_height = height;
+        glViewport(0, 0, width, height);
+    });
 
     // main loop
-    window.loop([&]() { scene.render(window); });
+    window.loop([&]() {
+        const auto proj = ProjectionBuilder()
+                              .with_left(-1)
+                              .with_right(1)
+                              .with_bottom(-1)
+                              .with_top(1)
+                              .with_near_clip(0.001)
+                              .with_far_clip(100)
+                              .with_fovy(80)
+                              .with_aspect(static_cast<float>(view_width) / view_height)
+                              .build();
+        const auto cam = Camera({0.0, 0.0, 2.0}, {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0});
+        scene.render(window, proj, cam);
+    });
 
     return 0;
 }
@@ -90,25 +109,6 @@ enum class TransMode {
 GLint i_loc_mvp;
 
 vector<string> filenames;
-
-struct Camera {
-    Vector3 position = Vector3{0.0f, 0.0f, 2.0f};
-    Vector3 center = Vector3{0.0f, 0.0f, 0.0f};
-    Vector3 up_vector = Vector3{0.0f, 1.0f, 0.0f};
-};
-Camera main_camera;
-
-struct ProjectSettings {
-    GLfloat near_clip = 0.001f;
-    GLfloat far_clip = 100.0f;
-    GLfloat fovy = 80;
-    GLfloat aspect = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
-    GLfloat left = -1;
-    GLfloat right = 1;
-    GLfloat top = 1;
-    GLfloat bottom = -1;
-};
-ProjectSettings proj;
 
 enum class ProjMode {
     Orthogonal,

@@ -4,56 +4,65 @@
 #include <memory>
 
 #include "drawable.hpp"
+#include "matrix.hpp"
 #include "shader.hpp"
 #include "vector.hpp"
 #include "window.hpp"
 
 #include "glad/glad.h"
 
-class ProjConfig final {
+class Projection final {
   public:
-    ProjConfig(GLfloat near_clip, GLfloat far_clip, GLfloat fovy, GLfloat aspect, GLfloat left,
-               GLfloat right, GLfloat top, GLfloat bottom);
-    ~ProjConfig();
-
-    // Prevent copy, allow move
-    ProjConfig(const ProjConfig&) = delete;
-    ProjConfig& operator=(const ProjConfig&) = delete;
-    ProjConfig(ProjConfig&&) = default;
-    ProjConfig& operator=(ProjConfig&&) = default;
+    ~Projection();
+    Matrix4 matrix() const;
 
   private:
-    struct ProjConfigImpl;
-    std::unique_ptr<ProjConfigImpl> impl;
+    struct ProjectionImpl;
+    std::unique_ptr<ProjectionImpl> impl;
+
+    Projection(GLfloat near_clip, GLfloat far_clip, GLfloat fovy, GLfloat aspect, GLfloat left,
+               GLfloat right, GLfloat top, GLfloat bottom);
+    friend class ProjectionBuilder;
 };
 
-class ProjConfigBuilder final {
+class ProjectionBuilder final {
   public:
-    ProjConfigBuilder();
-    ~ProjConfigBuilder();
+    ProjectionBuilder();
+    ~ProjectionBuilder();
 
-    // Prevent copy, allow move
-    ProjConfigBuilder(const ProjConfigBuilder&) = delete;
-    ProjConfigBuilder& operator=(const ProjConfigBuilder&) = delete;
-    ProjConfigBuilder(ProjConfigBuilder&&) = default;
-    ProjConfigBuilder& operator=(ProjConfigBuilder&&) = default;
+    ProjectionBuilder& with_near_clip(GLfloat value);
+    ProjectionBuilder& with_far_clip(GLfloat value);
+    ProjectionBuilder& with_fovy(GLfloat value);
+    ProjectionBuilder& with_aspect(GLfloat value);
+    ProjectionBuilder& with_left(GLfloat value);
+    ProjectionBuilder& with_right(GLfloat value);
+    ProjectionBuilder& with_top(GLfloat value);
+    ProjectionBuilder& with_bottom(GLfloat value);
 
-    void with_near_clip(GLfloat value);
-    void with_far_clip(GLfloat value);
-    void with_fovy(GLfloat value);
-    void with_aspect(GLfloat value);
-    void with_left(GLfloat value);
-    void with_right(GLfloat value);
-    void with_top(GLfloat value);
-    void with_bottom(GLfloat value);
-
-    // Builds an instance of ProjConfig.
+    // Builds an instance of Projection.
     // Throws if there are values not assigned yet.
-    ProjConfig build() const;
+    Projection build() const;
 
   private:
-    struct ProjConfigBuilderImpl;
-    std::unique_ptr<ProjConfigBuilderImpl> impl;
+    struct ProjectionBuilderImpl;
+    std::unique_ptr<ProjectionBuilderImpl> impl;
+};
+
+class Camera final {
+  public:
+    Camera(Vector3 pos, Vector3 center, Vector3 up);
+    ~Camera();
+    Matrix4 matrix() const;
+
+    // Prevent copy, allow move
+    Camera(const Camera&) = delete;
+    Camera& operator=(const Camera&) = delete;
+    Camera(Camera&&) = default;
+    Camera& operator=(Camera&&) = default;
+
+  private:
+    struct CameraImpl;
+    std::unique_ptr<CameraImpl> impl;
 };
 
 // TODO: Break scene into layers
@@ -68,7 +77,7 @@ class Scene final {
     Scene(Scene&&) = default;
     Scene& operator=(Scene&&) = default;
 
-    void render(const Window& window);
+    void render(const Window& window, const Projection& proj, const Camera& cam);
 
   private:
     struct SceneImpl;
