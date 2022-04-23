@@ -70,16 +70,6 @@ TransMode cur_trans_mode = TransMode::GeoTranslation;
 Matrix4 view_matrix;
 Matrix4 project_matrix;
 
-struct Shape {
-    GLuint vao;
-    GLuint vbo;
-    GLuint p_color;
-    int vertex_count;
-};
-Shape m_shpae;
-vector<Shape> m_shape_list;
-int cur_idx = 0; // represent which model should be rendered now
-
 GLvoid normalize(GLfloat v[3]) {
     GLfloat l;
 
