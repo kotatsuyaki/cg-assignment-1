@@ -1,8 +1,3 @@
-/**
- * @file scene.hpp
- * @brief Scene-related classes.
- */
-
 #ifndef SCENE_HPP_
 #define SCENE_HPP_
 
@@ -61,6 +56,7 @@ class ProjConfigBuilder final {
     std::unique_ptr<ProjConfigBuilderImpl> impl;
 };
 
+// TODO: Break scene into layers
 class Scene final {
   public:
     Scene(Shader shader, Vector3 clear_color);

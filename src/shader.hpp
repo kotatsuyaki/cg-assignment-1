@@ -8,6 +8,7 @@
 
 class Window;
 
+// Wrapper class for compiled OpenGL shader program objects.
 class Shader final {
   public:
     Shader(const Window& window, std::string_view vertex_shader_src,

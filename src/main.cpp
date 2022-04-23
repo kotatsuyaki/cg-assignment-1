@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "matrix.hpp"
@@ -21,7 +22,7 @@ using std::string;
 using std::vector;
 namespace fs = std::filesystem;
 
-ModelList load_models(const Window& window);
+ModelList load_models_recursive_from_path(const Window& window, std::string_view path);
 
 int main(int argc, char** argv) {
     Glfw glfw{};
@@ -32,7 +33,7 @@ int main(int argc, char** argv) {
     Scene scene{std::move(shader), Vector3{0.2f, 0.2f, 0.2f}};
 
     // Load models
-    ModelList models = load_models(window);
+    ModelList models = load_models_recursive_from_path(window, "./");
 
     window.on_key(Key::Z, KeyAction::Down, [&](Key key, KeyAction action) { models.prev_model(); });
     window.on_key(Key::X, KeyAction::Down, [&](Key key, KeyAction action) { models.next_model(); });
@@ -48,10 +49,11 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-ModelList load_models(const Window& window) {
+ModelList load_models_recursive_from_path(const Window& window, std::string_view path) {
     ModelList models{};
-    vector<string> model_list{};
-    for (auto const& entry : fs::recursive_directory_iterator("./")) {
+
+    // Load model from each file with .obj ending
+    for (auto const& entry : fs::recursive_directory_iterator(path)) {
         if (entry.path().extension().string() == ".obj") {
             auto path = entry.path().string();
 
