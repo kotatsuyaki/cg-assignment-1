@@ -434,8 +434,8 @@ Matrix4& Matrix4::rotate(float angle, const Vector3& axis) {
 }
 
 Matrix4& Matrix4::rotate(float angle, float x, float y, float z) {
-    float c = cosf(angle / 180.0 * 3.14159265); // cosine
-    float s = sinf(angle / 180.0 * 3.14159265); // sine
+    float c = cosf(angle / 180.0f * 3.14159265f); // cosine
+    float s = sinf(angle / 180.0f * 3.14159265f); // sine
     float xx = x * x;
     float xy = x * y;
     float xz = x * z;

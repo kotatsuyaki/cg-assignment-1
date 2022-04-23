@@ -1,6 +1,7 @@
 #include "model.hpp"
 
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -176,7 +177,8 @@ Model::~Model() = default;
 
 void Model::draw() const {
     glBindVertexArray(impl->vao);
-    glDrawArrays(GL_TRIANGLES, 0, impl->vertex_count);
+    // NOTE: We don't have boost::numeric_cast available.  This cast may overflow.
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(impl->vertex_count));
 }
 
 ModelList::ModelList() : models(), index(0) {}

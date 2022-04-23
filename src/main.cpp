@@ -187,11 +187,15 @@ void set_perspective() {
 GLuint vao, vbo;
 
 void draw_plane() {
-    GLfloat vertices[18]{1.0, -0.9, -1.0, 1.0,  -0.9, 1.0, -1.0, -0.9, -1.0,
-                         1.0, -0.9, 1.0,  -1.0, -0.9, 1.0, -1.0, -0.9, -1.0};
+    GLfloat vertices[18]{
+        1.0f, -0.9f, -1.0f, 1.0f,  -0.9f, 1.0f, -1.0f, -0.9f, -1.0f,
+        1.0f, -0.9f, 1.0f,  -1.0f, -0.9f, 1.0f, -1.0f, -0.9f, -1.0f,
+    };
 
-    GLfloat colors[18]{0.0, 1.0, 0.0, 0.0, 0.5, 0.8, 0.0, 1.0, 0.0,
-                       0.0, 0.5, 0.8, 0.0, 0.5, 0.8, 0.0, 1.0, 0.0};
+    GLfloat colors[18]{
+        0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.8f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.5f, 0.8f, 0.0f, 0.5f, 0.8f, 0.0f, 1.0f, 0.0f,
+    };
 
     // [TODO] draw the plane with above vertices and color
 }
@@ -266,7 +270,7 @@ int main(int argc, char** argv) {
     Shader shader{window, resources::SHADER_VS, resources::SHADER_FS};
     i_loc_mvp = shader.uniform_location("mvp");
     glEnable(GL_DEPTH_TEST);
-    glClearColor(0.2, 0.2, 0.2, 1.0);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     // Load models
     ModelList models = load_models(window);
