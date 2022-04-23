@@ -46,6 +46,9 @@ class ModelList final {
     // Switches current index to the next model.
     void next_model();
 
+    // Switches current index to the previous model.
+    void prev_model();
+
     // Prevent copy, allow move
     ModelList(const ModelList&) = delete;
     ModelList& operator=(const ModelList&) = delete;

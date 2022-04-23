@@ -1,12 +1,17 @@
 #include "window.hpp"
 
+#include <algorithm>
+#include <cstdint>
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
 
+#include <array>
 #include <functional>
+#include <iterator>
 #include <optional>
 #include <stdexcept>
+#include <unordered_map>
 
 Glfw::Glfw() {
     int res = glfwInit();
@@ -23,10 +28,30 @@ struct GlfwWindowDeleter {
     void operator()(GLFWwindow* ptr) { glfwDestroyWindow(ptr); }
 };
 
+// Hasher for std::pair<_, _>
+struct PairHash {
+    template <class T, class U> size_t operator()(const std::pair<T, U>& p) const {
+        size_t thash = std::hash<T>{}(p.first);
+        size_t uhash = std::hash<U>{}(p.second);
+
+        size_t magic;
+        // Use 64-bit magic when size_t is 64-bit, but fallback to 32-bit magic
+        if constexpr (sizeof(size_t) == 8) {
+            magic = 0x9e3779b97f4a7c15;
+        } else {
+            magic = 0x9e3779b9;
+        }
+        return thash ^ uhash + magic + (thash << 6) + (thash >> 2);
+    }
+};
+
+// Convert raw GLFW_KEY_* to safe types
+std::optional<Key> int_to_key(int raw);
+std::optional<KeyAction> int_to_action(int raw);
 } // namespace
 
 struct Window::WindowImpl {
-    WindowImpl(GLFWwindow* window) : window(window) {
+    WindowImpl(GLFWwindow* window) : window(window), key_callbacks() {
         glfwSetWindowUserPointer(window, this);
         glfwSetKeyCallback(window, key_callback);
         glfwSetScrollCallback(window, scroll_callback);
@@ -35,10 +60,20 @@ struct Window::WindowImpl {
         glfwSetFramebufferSizeCallback(window, fb_size_callback);
     }
 
-    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    static void key_callback(GLFWwindow* window, int raw_key, int scancode, int raw_action,
+                             int mods) {
         auto impl = static_cast<Window::WindowImpl*>(glfwGetWindowUserPointer(window));
-        if (auto callback = impl->_key_callback) {
-            (*callback)(key, scancode, action, mods);
+        auto key = int_to_key(raw_key);
+        auto action = int_to_action(raw_action);
+
+        if (key.has_value() == false || action.has_value() == false) {
+            return;
+        }
+
+        auto it = impl->key_callbacks.find({*key, *action});
+        if (it != impl->key_callbacks.end()) {
+            auto callback = it->second;
+            callback(*key, *action);
         }
     }
 
@@ -77,6 +112,8 @@ struct Window::WindowImpl {
     std::optional<MouseButtonCallback> _mouse_button_callback;
     std::optional<CursorPosCallback> _cursor_pos_callback;
     std::optional<FbSizeCallback> _fb_size_callback;
+
+    std::unordered_map<std::pair<Key, KeyAction>, KeyCallback, PairHash> key_callbacks;
 };
 
 Window::Window(const Glfw& glfw, std::string title, int width, int height) {
@@ -125,7 +162,6 @@ void Window::make_current() const {
     glfwMakeContextCurrent(window);
 }
 
-void Window::set_key_callback(KeyCallback callback) { impl->_key_callback = callback; }
 void Window::set_scroll_callback(ScrollCallback callback) { impl->_scroll_callback = callback; }
 void Window::set_mouse_button_callback(MouseButtonCallback callback) {
     impl->_mouse_button_callback = callback;
@@ -134,3 +170,38 @@ void Window::set_cursor_pos_callback(CursorPosCallback callback) {
     impl->_cursor_pos_callback = callback;
 }
 void Window::set_fb_size_callback(FbSizeCallback callback) { impl->_fb_size_callback = callback; }
+
+void Window::on_key(Key key, KeyAction action, KeyCallback callback) {
+    impl->key_callbacks.insert({{key, action}, callback});
+}
+
+namespace {
+std::optional<Key> int_to_key(int raw) {
+    const std::array<int, 26> raw_keys{
+        GLFW_KEY_A, GLFW_KEY_B, GLFW_KEY_C, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_F, GLFW_KEY_G,
+        GLFW_KEY_H, GLFW_KEY_I, GLFW_KEY_J, GLFW_KEY_K, GLFW_KEY_L, GLFW_KEY_M, GLFW_KEY_N,
+        GLFW_KEY_O, GLFW_KEY_P, GLFW_KEY_Q, GLFW_KEY_R, GLFW_KEY_S, GLFW_KEY_T, GLFW_KEY_U,
+        GLFW_KEY_V, GLFW_KEY_W, GLFW_KEY_X, GLFW_KEY_Y, GLFW_KEY_Z};
+    const auto it = std::find(raw_keys.begin(), raw_keys.end(), raw);
+    if (it == raw_keys.end()) {
+        return std::nullopt;
+    } else {
+        const auto idx = std::distance(raw_keys.begin(), it);
+        return static_cast<Key>(idx);
+    }
+}
+
+std::optional<KeyAction> int_to_action(int raw) {
+    const std::array<int, 26> raw_actions{
+        GLFW_PRESS,
+        GLFW_RELEASE,
+    };
+    const auto it = std::find(raw_actions.begin(), raw_actions.end(), raw);
+    if (it == raw_actions.end()) {
+        return std::nullopt;
+    } else {
+        const auto idx = std::distance(raw_actions.begin(), it);
+        return static_cast<KeyAction>(idx);
+    }
+}
+} // namespace

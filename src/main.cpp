@@ -27,18 +27,20 @@ int main(int argc, char** argv) {
     Glfw glfw{};
     Window window{glfw, "107021129 HW1"};
 
-    window.set_key_callback([](int key, int scancode, int action, int mods) {});
-    window.set_scroll_callback([](double xoffset, double yoffset) {});
-    window.set_mouse_button_callback([](int button, int action, int mods) {});
-    window.set_cursor_pos_callback([](double xpos, double ypos) {});
-    window.set_fb_size_callback([](int width, int height) { glViewport(0, 0, width, height); });
-
     // Setup shader and scene
     Shader shader{window, resources::SHADER_VS, resources::SHADER_FS};
     Scene scene{std::move(shader), Vector3{0.2f, 0.2f, 0.2f}};
 
     // Load models
     ModelList models = load_models(window);
+
+    window.on_key(Key::Z, KeyAction::Down, [&](Key key, KeyAction action) { models.prev_model(); });
+    window.on_key(Key::X, KeyAction::Down, [&](Key key, KeyAction action) { models.next_model(); });
+
+    window.set_scroll_callback([](double xoffset, double yoffset) {});
+    window.set_mouse_button_callback([](int button, int action, int mods) {});
+    window.set_cursor_pos_callback([](double xpos, double ypos) {});
+    window.set_fb_size_callback([](int width, int height) { glViewport(0, 0, width, height); });
 
     // main loop
     window.loop([&]() { scene.render(window, models.current()); });

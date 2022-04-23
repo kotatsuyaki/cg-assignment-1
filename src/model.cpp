@@ -197,3 +197,11 @@ void ModelList::next_model() {
     index += 1;
     index %= models.size();
 }
+
+void ModelList::prev_model() {
+    if (index == 0) {
+        index = models.size() - 1;
+    } else {
+        index -= 1;
+    }
+}

@@ -26,8 +26,12 @@ class Glfw final {
     Glfw& operator=(Glfw&&) = default;
 };
 
+// Key and action types to avoid leaking underlying impl
+enum class Key { A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z };
+enum class KeyAction { Down, Up };
+
 // Callback types used in windows.
-using KeyCallback = std::function<void(int, int, int, int)>;
+using KeyCallback = std::function<void(Key, KeyAction)>;
 using ScrollCallback = std::function<void(double, double)>;
 using MouseButtonCallback = std::function<void(int, int, int)>;
 using CursorPosCallback = std::function<void(double, double)>;
@@ -53,9 +57,9 @@ class Window final {
     // Makes the context of this window the current context
     void make_current() const;
 
-    // Sets callbacks that are going to be called.
+    // Sets callbacks.
     // Must not be called while `loop` is running.
-    void set_key_callback(KeyCallback callback);
+    void on_key(Key key, KeyAction action, KeyCallback callback);
     void set_scroll_callback(ScrollCallback callback);
     void set_mouse_button_callback(MouseButtonCallback callback);
     void set_cursor_pos_callback(CursorPosCallback callback);
