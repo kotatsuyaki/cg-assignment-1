@@ -19,6 +19,7 @@
           bear
           clang-tools
           rnix-lsp
+          ninja
         ];
       in
       {
