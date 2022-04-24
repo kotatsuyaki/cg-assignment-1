@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <memory>
 #include <optional>
+#include <stdexcept>
 
 #include "../mathutils.hpp"
 

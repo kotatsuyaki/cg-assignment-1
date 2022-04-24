@@ -2,9 +2,7 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
-#include <string>
 #include <string_view>
-#include <vector>
 
 #include "matrix.hpp"
 #include "model.hpp"
@@ -15,12 +13,8 @@
 #include "vector.hpp"
 #include "window.hpp"
 
-using std::cerr;
-using std::cout;
-using std::size_t;
-using std::string;
-using std::vector;
 namespace fs = std::filesystem;
+using std::size_t;
 
 ModelList load_models_recursive_from_path(const Window& window, std::string_view path);
 
@@ -92,8 +86,6 @@ enum class TransMode {
     ViewEye,
     ViewUp,
 };
-
-vector<string> filenames;
 
 Matrix4 view_matrix;
 Matrix4 project_matrix;
