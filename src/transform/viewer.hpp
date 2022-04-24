@@ -7,13 +7,14 @@
 #include "../vector.hpp"
 #include "transform.hpp"
 
+// Viewing transform (i.e. camera).
 class Viewer final : public Transform {
   public:
-    Viewer(Vector3 pos, Vector3 center, Vector3 up);
+    explicit Viewer(Vector3 pos, Vector3 center, Vector3 up);
     ~Viewer();
-    Matrix4 matrix() const;
+    virtual Matrix4 matrix() const override;
 
-    // Prevent copy, allow move
+    // Explicit copy, allow move
     Viewer(const Viewer&) = delete;
     Viewer& operator=(const Viewer&) = delete;
     Viewer(Viewer&&) = default;

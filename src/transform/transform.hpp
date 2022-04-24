@@ -3,6 +3,7 @@
 
 #include "../matrix.hpp"
 
+// Abstract class for types producing transform matrices.
 class Transform {
   public:
     virtual Matrix4 matrix() const = 0;

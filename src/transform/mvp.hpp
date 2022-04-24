@@ -5,11 +5,17 @@
 
 #include "transform.hpp"
 
+// Wrapper for MVP transformation.
 class Mvp : public Transform {
   public:
-    Mvp(int initial_width, int initial_height);
+    explicit Mvp(int initial_width, int initial_height);
     ~Mvp();
     virtual Matrix4 matrix() const override;
+
+    Mvp(const Mvp&) = delete;
+    Mvp& operator=(const Mvp&) = delete;
+    Mvp(Mvp&&) = default;
+    Mvp& operator=(Mvp&&) = default;
 
   private:
     struct Impl;

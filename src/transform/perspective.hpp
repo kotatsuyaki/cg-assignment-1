@@ -5,6 +5,8 @@
 
 #include <memory>
 
+// Perspective projection transform.
+// Use PerspectiveBuilder to build an instance of it.
 class Perspective final : public Transform {
   public:
     ~Perspective();
@@ -14,8 +16,8 @@ class Perspective final : public Transform {
     struct PerspectiveImpl;
     std::unique_ptr<PerspectiveImpl> impl;
 
-    Perspective(float near_clip, float far_clip, float fovy, float aspect, float left, float right,
-                float top, float bottom);
+    explicit Perspective(float near_clip, float far_clip, float fovy, float aspect, float left,
+                         float right, float top, float bottom);
     friend class PerspectiveBuilder;
 };
 
