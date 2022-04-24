@@ -7,6 +7,7 @@
 class Transform {
   public:
     virtual Matrix4 matrix() const = 0;
+    virtual ~Transform() = default;
 };
 
 #endif
