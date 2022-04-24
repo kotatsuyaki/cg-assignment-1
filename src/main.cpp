@@ -46,6 +46,12 @@ int main(int argc, char** argv) {
     // Setup keyboard callbacks
     window.on_key(Key::Z, KeyAction::Down, [&](Key key, KeyAction action) { models.prev_model(); });
     window.on_key(Key::X, KeyAction::Down, [&](Key key, KeyAction action) { models.next_model(); });
+    window.on_key(Key::O, KeyAction::Down, [&](Key key, KeyAction action) {
+        mvp.set_project_mode(Mvp::ProjectMode::Orthogonal);
+    });
+    window.on_key(Key::P, KeyAction::Down, [&](Key key, KeyAction action) {
+        mvp.set_project_mode(Mvp::ProjectMode::Perspective);
+    });
 
     // Setup other callbacks
     window.set_scroll_callback([](double xoffset, double yoffset) {});
@@ -78,10 +84,6 @@ ModelList load_models_recursive_from_path(const Window& window, std::string_view
     return models;
 }
 
-// Default window size
-constexpr int WINDOW_WIDTH = 800;
-constexpr int WINDOW_HEIGHT = 600;
-
 bool mouse_pressed = false;
 int starting_press_x = -1;
 int starting_press_y = -1;
@@ -98,13 +100,6 @@ enum class TransMode {
 GLint i_loc_mvp;
 
 vector<string> filenames;
-
-enum class ProjMode {
-    Orthogonal,
-    Perspective,
-};
-ProjMode cur_proj_mode = ProjMode::Orthogonal;
-TransMode cur_trans_mode = TransMode::GeoTranslation;
 
 Matrix4 view_matrix;
 Matrix4 project_matrix;
@@ -195,23 +190,6 @@ Matrix4 rotate_z(GLfloat val) {
 
 Matrix4 rotate(Vector3 vec) { return rotate_x(vec.x) * rotate_y(vec.y) * rotate_z(vec.z); }
 
-// [TODO] compute viewing matrix accroding to the setting of main_camera
-void set_viewing_matrix() {
-    // view_matrix[...] = ...
-}
-
-// [TODO] compute orthogonal projection matrix
-void set_orthogonal() {
-    cur_proj_mode = ProjMode::Orthogonal;
-    // project_matrix [...] = ...
-}
-
-// [TODO] compute persepective projection matrix
-void set_perspective() {
-    cur_proj_mode = ProjMode::Perspective;
-    // project_matrix [...] = ...
-}
-
 // Vertex buffers
 GLuint vao, vbo;
 
@@ -227,9 +205,4 @@ void draw_plane() {
     };
 
     // [TODO] draw the plane with above vertices and color
-}
-
-void init_parameter() {
-    set_viewing_matrix();
-    set_perspective(); // set default projection matrix as perspective matrix
 }

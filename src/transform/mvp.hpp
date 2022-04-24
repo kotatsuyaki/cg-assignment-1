@@ -19,6 +19,9 @@ class Mvp : public Transform {
 
     void set_viewport_size(int width, int height);
 
+    enum class ProjectMode { Perspective, Orthogonal };
+    void set_project_mode(ProjectMode mode);
+
   private:
     struct Impl;
     std::unique_ptr<Impl> impl;

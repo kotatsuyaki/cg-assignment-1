@@ -9,8 +9,7 @@ add_executable(proj
     src/shader.cpp
     src/model.cpp
     src/scene.cpp
-    src/transform/ortho.cpp
-    src/transform/perspective.cpp
+    src/transform/projection.cpp
     src/transform/rotation.cpp
     src/transform/viewer.cpp
     src/transform/mvp.cpp
