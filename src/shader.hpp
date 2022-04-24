@@ -26,7 +26,7 @@ class Shader final {
     void set_uniform(std::string_view name, const Matrix4& mat);
 
   private:
-    struct Impl;
+    class Impl;
     struct ImplDeleter {
         void operator()(Impl*) const;
     };
