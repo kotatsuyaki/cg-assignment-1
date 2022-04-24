@@ -1,10 +1,10 @@
-// vim: set ft=glsl:
-
 #version 330 core
 
-out vec4 FragColor;
+out vec4 out_color;
 in vec3 vertex_color;
 
 void main() {
-	FragColor = vec4(vertex_color, 1.0f);
+	out_color = vec4(vertex_color, 1.0f);
 }
+
+// vim: set ft=glsl:

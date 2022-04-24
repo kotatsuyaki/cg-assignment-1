@@ -8,7 +8,7 @@
 // Wrapper for MVP transformation.
 class Mvp : public Transform {
   public:
-    explicit Mvp(int initial_width, int initial_height);
+    explicit Mvp(int width, int height);
     ~Mvp();
     virtual Matrix4 matrix() const override;
 

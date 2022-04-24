@@ -31,7 +31,7 @@ Perspective::~Perspective() = default;
 Matrix4 Perspective::matrix() const { return impl->matrix(); }
 
 Matrix4 Perspective::PerspectiveImpl::matrix() const {
-    const float tan_term = std::tan(deg2rad(fovy) / 2.0f);
+    const float tan_term = std::tan(deg2rad(fovy) * 0.5f);
 
     const float x_scale = 1.0f / (tan_term * aspect);
     const float y_scale = 1.0f / tan_term;
