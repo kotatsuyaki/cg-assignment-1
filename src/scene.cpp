@@ -7,6 +7,8 @@
 #include <optional>
 #include <stdexcept>
 
+#include <glad/glad.h>
+
 #include "matrix.hpp"
 #include "shader.hpp"
 #include "transform/transform.hpp"
@@ -34,12 +36,10 @@ void Scene::render(const Window& window, const Transform& transform) {
     Matrix4 t, r, s;
     // [TODO] update translation, rotation and scaling
 
-    Matrix4 mvp_colmaj = transform.matrix().transpose();
+    Matrix4 mvp = transform.matrix();
 
-    // Update mvp to shader
-    auto mvp_loc = impl->shader.uniform_location("mvp");
-    glUniformMatrix4fv(mvp_loc, 1, GL_FALSE, mvp_colmaj.data());
-
+    // Update mvp and draw the model
+    impl->shader.set_uniform("mvp", mvp);
     impl->drawable->draw();
 
     // TODO: Implement this

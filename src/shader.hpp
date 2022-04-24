@@ -1,10 +1,10 @@
 #ifndef SHADER_HPP_
 #define SHADER_HPP_
 
-#include <glad/glad.h>
-
 #include <memory>
 #include <string_view>
+
+#include "matrix.hpp"
 
 class Window;
 
@@ -21,15 +21,16 @@ class Shader final {
     Shader(Shader&&) = default;
     Shader& operator=(Shader&&) = default;
 
-    // Gets the location of a uniform variable.
-    GLint uniform_location(std::string_view name);
+    // Sets uniform with name to value of mat.
+    // The input matrix should be stored row-major.
+    void set_uniform(std::string_view name, const Matrix4& mat);
 
   private:
-    struct ShaderImpl;
-    struct ShaderImplDeleter {
-        void operator()(ShaderImpl*) const;
+    struct Impl;
+    struct ImplDeleter {
+        void operator()(Impl*) const;
     };
-    std::unique_ptr<ShaderImpl, ShaderImplDeleter> impl;
+    std::unique_ptr<Impl, ImplDeleter> impl;
 };
 
 #endif

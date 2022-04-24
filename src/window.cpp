@@ -1,12 +1,12 @@
 #include "window.hpp"
 
-#include <algorithm>
-#include <cstdint>
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
 
+#include <algorithm>
 #include <array>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <optional>
@@ -99,6 +99,7 @@ struct Window::WindowImpl {
     }
 
     static void fb_size_callback(GLFWwindow* window, int width, int height) {
+        glViewport(0, 0, width, height);
         auto impl = static_cast<Window::WindowImpl*>(glfwGetWindowUserPointer(window));
         if (auto callback = impl->_fb_size_callback) {
             (*callback)(width, height);

@@ -8,19 +8,24 @@
 
 #include "window.hpp"
 
-struct Shader::ShaderImpl {
+class Shader::Impl {
+  public:
+    Impl(GLuint program) : program(program), uniform_locations() {}
+    ~Impl() { glDeleteProgram(program); }
+
+    Impl(const Impl&) = delete;
+    Impl& operator=(const Impl&) = delete;
+
+    void set_uniform(std::string_view name, const Matrix4& mat);
+    GLint uniform_location(std::string_view name);
+
+  private:
     GLuint program;
 
     // Internal cache for uniform locations
     std::unordered_map<std::string, GLint> uniform_locations;
-
-    ShaderImpl(GLuint program) : program(program), uniform_locations() {}
-    ~ShaderImpl() { glDeleteProgram(program); }
-
-    ShaderImpl(const ShaderImpl&) = delete;
-    ShaderImpl& operator=(const ShaderImpl&) = delete;
 };
-void Shader::ShaderImplDeleter::operator()(ShaderImpl* ptr) const { delete ptr; }
+void Shader::ImplDeleter::operator()(Impl* ptr) const { delete ptr; }
 
 Shader::Shader(const Window& window, std::string_view vertex_shader_src,
                std::string_view fragment_shader_src) {
@@ -80,17 +85,28 @@ Shader::Shader(const Window& window, std::string_view vertex_shader_src,
     glDeleteShader(f);
     glUseProgram(p);
 
-    impl = std::unique_ptr<ShaderImpl, ShaderImplDeleter>(new ShaderImpl(p));
+    impl = std::unique_ptr<Impl, ImplDeleter>(new Impl(p));
 }
-
 Shader::~Shader() {}
 
-GLint Shader::uniform_location(std::string_view name) {
-    const auto it = impl->uniform_locations.find(name.data());
-    if (it == impl->uniform_locations.end()) {
+void Shader::set_uniform(std::string_view name, const Matrix4& mat) {
+    impl->set_uniform(name, mat);
+}
+void Shader::Impl::set_uniform(std::string_view name, const Matrix4& mat) {
+    const GLint loc = uniform_location(name);
+    glUniformMatrix4fv(loc, 1, GL_TRUE, mat.data());
+}
+
+GLint Shader::Impl::uniform_location(std::string_view name) {
+    const auto it = uniform_locations.find(name.data());
+    if (it == uniform_locations.end()) {
         // Cache miss, get and insert
-        GLint loc = glGetUniformLocation(impl->program, static_cast<const GLchar*>(name.data()));
-        impl->uniform_locations.insert({name.data(), loc});
+        const GLint loc = glGetUniformLocation(program, static_cast<const GLchar*>(name.data()));
+        if (loc == -1) {
+            throw std::runtime_error(std::string("Uniform with name ") + name.data() +
+                                     " not found in shader program\n");
+        }
+        uniform_locations.insert({name.data(), loc});
         return loc;
     } else {
         // Cache hit, return cached value

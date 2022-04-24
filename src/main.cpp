@@ -15,8 +15,6 @@
 #include "vector.hpp"
 #include "window.hpp"
 
-#include <glad/glad.h>
-
 using std::cerr;
 using std::cout;
 using std::size_t;
@@ -58,10 +56,8 @@ int main(int argc, char** argv) {
     window.set_mouse_button_callback([](int button, int action, int mods) {});
     window.set_cursor_pos_callback([](double xpos, double ypos) {});
 
-    window.set_fb_size_callback([&](int width, int height) {
-        glViewport(0, 0, width, height);
-        mvp.set_viewport_size(width, height);
-    });
+    window.set_fb_size_callback(
+        [&](int width, int height) { mvp.set_viewport_size(width, height); });
 
     // main loop
     window.loop([&]() { scene.render(window, mvp); });
@@ -97,28 +93,10 @@ enum class TransMode {
     ViewUp,
 };
 
-GLint i_loc_mvp;
-
 vector<string> filenames;
 
 Matrix4 view_matrix;
 Matrix4 project_matrix;
-
-GLvoid normalize(GLfloat v[3]) {
-    GLfloat l;
-
-    l = static_cast<GLfloat>(std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
-    v[0] /= l;
-    v[1] /= l;
-    v[2] /= l;
-}
-
-GLvoid cross(GLfloat u[3], GLfloat v[3], GLfloat n[3]) {
-
-    n[0] = u[1] * v[2] - u[2] * v[1];
-    n[1] = u[2] * v[0] - u[0] * v[2];
-    n[2] = u[0] * v[1] - u[1] * v[0];
-}
 
 // [TODO] given a translation vector then output a Matrix4 (Translation Matrix)
 Matrix4 translate(Vector3 vec) {
@@ -148,7 +126,7 @@ Matrix4 scaling(Vector3 vec) {
 
 // [TODO] given a float value then ouput a rotation matrix alone axis-X (rotate
 // alone axis-X)
-Matrix4 rotate_x(GLfloat val) {
+Matrix4 rotate_x(float val) {
     Matrix4 mat;
 
     /*
@@ -162,7 +140,7 @@ Matrix4 rotate_x(GLfloat val) {
 
 // [TODO] given a float value then ouput a rotation matrix alone axis-Y (rotate
 // alone axis-Y)
-Matrix4 rotate_y(GLfloat val) {
+Matrix4 rotate_y(float val) {
     Matrix4 mat;
 
     /*
@@ -176,7 +154,7 @@ Matrix4 rotate_y(GLfloat val) {
 
 // [TODO] given a float value then ouput a rotation matrix alone axis-Z (rotate
 // alone axis-Z)
-Matrix4 rotate_z(GLfloat val) {
+Matrix4 rotate_z(float val) {
     Matrix4 mat;
 
     /*
@@ -190,16 +168,13 @@ Matrix4 rotate_z(GLfloat val) {
 
 Matrix4 rotate(Vector3 vec) { return rotate_x(vec.x) * rotate_y(vec.y) * rotate_z(vec.z); }
 
-// Vertex buffers
-GLuint vao, vbo;
-
 void draw_plane() {
-    GLfloat vertices[18]{
+    float vertices[18]{
         1.0f, -0.9f, -1.0f, 1.0f,  -0.9f, 1.0f, -1.0f, -0.9f, -1.0f,
         1.0f, -0.9f, 1.0f,  -1.0f, -0.9f, 1.0f, -1.0f, -0.9f, -1.0f,
     };
 
-    GLfloat colors[18]{
+    float colors[18]{
         0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.8f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.5f, 0.8f, 0.0f, 0.5f, 0.8f, 0.0f, 1.0f, 0.0f,
     };
