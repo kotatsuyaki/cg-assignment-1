@@ -100,7 +100,7 @@ struct Window::WindowImpl {
 
     static void fb_size_callback(GLFWwindow* window, int width, int height) {
         auto impl = static_cast<Window::WindowImpl*>(glfwGetWindowUserPointer(window));
-        if (auto callback = impl->_cursor_pos_callback) {
+        if (auto callback = impl->_fb_size_callback) {
             (*callback)(width, height);
         }
     }
