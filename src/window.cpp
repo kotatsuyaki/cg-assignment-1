@@ -73,7 +73,7 @@ struct Window::WindowImpl {
         auto it = impl->key_callbacks.find({*key, *action});
         if (it != impl->key_callbacks.end()) {
             auto callback = it->second;
-            callback(*key, *action);
+            callback();
         }
     }
 

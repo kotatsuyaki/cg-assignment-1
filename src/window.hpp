@@ -28,7 +28,7 @@ enum class Key { A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, 
 enum class KeyAction { Down, Up };
 
 // Callback types used in windows.
-using KeyCallback = std::function<void(Key, KeyAction)>;
+using KeyCallback = std::function<void()>;
 using ScrollCallback = std::function<void(double, double)>;
 using MouseButtonCallback = std::function<void(int, int, int)>;
 using CursorPosCallback = std::function<void(double, double)>;

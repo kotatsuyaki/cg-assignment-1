@@ -36,14 +36,12 @@ int main(int argc, char** argv) {
     Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
 
     // Setup keyboard callbacks
-    window.on_key(Key::Z, KeyAction::Down, [&](Key key, KeyAction action) { models.prev_model(); });
-    window.on_key(Key::X, KeyAction::Down, [&](Key key, KeyAction action) { models.next_model(); });
-    window.on_key(Key::O, KeyAction::Down, [&](Key key, KeyAction action) {
-        mvp.set_project_mode(Mvp::ProjectMode::Orthogonal);
-    });
-    window.on_key(Key::P, KeyAction::Down, [&](Key key, KeyAction action) {
-        mvp.set_project_mode(Mvp::ProjectMode::Perspective);
-    });
+    window.on_key(Key::Z, KeyAction::Down, [&]() { models.prev_model(); });
+    window.on_key(Key::X, KeyAction::Down, [&]() { models.next_model(); });
+    window.on_key(Key::O, KeyAction::Down,
+                  [&]() { mvp.set_project_mode(Mvp::ProjectMode::Orthogonal); });
+    window.on_key(Key::P, KeyAction::Down,
+                  [&]() { mvp.set_project_mode(Mvp::ProjectMode::Perspective); });
 
     // Setup other callbacks
     window.set_scroll_callback([](double xoffset, double yoffset) {});
