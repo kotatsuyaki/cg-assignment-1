@@ -11,6 +11,7 @@
 #include "resources.hpp"
 #include "scene.hpp"
 #include "shader.hpp"
+#include "transform/mvp.hpp"
 #include "vector.hpp"
 #include "window.hpp"
 
@@ -57,18 +58,8 @@ int main(int argc, char** argv) {
 
     // main loop
     window.loop([&]() {
-        const auto proj = ProjectionBuilder()
-                              .with_left(-1)
-                              .with_right(1)
-                              .with_bottom(-1)
-                              .with_top(1)
-                              .with_near_clip(0.001)
-                              .with_far_clip(100)
-                              .with_fovy(80)
-                              .with_aspect(static_cast<float>(view_width) / view_height)
-                              .build();
-        const auto cam = Camera({0.0, 0.0, 2.0}, {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0});
-        scene.render(window, proj, cam);
+        const auto mvp = Mvp(view_width, view_height);
+        scene.render(window, mvp);
     });
 
     return 0;

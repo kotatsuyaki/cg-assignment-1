@@ -9,6 +9,11 @@ add_executable(proj
     src/shader.cpp
     src/model.cpp
     src/scene.cpp
+    src/transform/ortho.cpp
+    src/transform/perspective.cpp
+    src/transform/rotation.cpp
+    src/transform/viewer.cpp
+    src/transform/mvp.cpp
     3rdparty/glad/glad.c
 )
 set_property(TARGET proj PROPERTY CXX_STANDARD 17)
