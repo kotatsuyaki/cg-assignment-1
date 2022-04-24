@@ -2,3 +2,9 @@
 	path = 3rdparty/glfw
 	url = https://github.com/glfw/glfw.git
 	branch = latest
+[submodule "3rdparty/tinyobjloader"]
+	path = 3rdparty/tinyobjloader
+	url = https://github.com/tinyobjloader/tinyobjloader.git
+[submodule "3rdparty/nativefiledialog-extended"]
+	path = 3rdparty/nativefiledialog-extended
+	url = https://github.com/btzy/nativefiledialog-extended.git

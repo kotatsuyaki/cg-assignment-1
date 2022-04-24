@@ -1,8 +1,11 @@
 #include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <iostream>
 #include <memory>
-#include <string_view>
+
+#include "nfd.h"
+#include "nfd.hpp"
 
 #include "matrix.hpp"
 #include "model.hpp"
@@ -16,7 +19,7 @@
 namespace fs = std::filesystem;
 using std::size_t;
 
-ModelList load_models_recursive_from_path(const Window& window, std::string_view path);
+ModelList load_models(const Window& window);
 
 int main(int argc, char** argv) {
     Glfw glfw{};
@@ -26,7 +29,7 @@ int main(int argc, char** argv) {
     Shader shader{window, resources::SHADER_VS, resources::SHADER_FS};
 
     // Load models
-    ModelList models = load_models_recursive_from_path(window, "./");
+    ModelList models = load_models(window);
 
     // Setup scene
     std::unique_ptr<Drawable> models_cloned = std::make_unique<ModelList>(models);
@@ -57,16 +60,33 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-ModelList load_models_recursive_from_path(const Window& window, std::string_view path) {
+ModelList load_models(const Window& window) {
     ModelList models{};
 
+    NFD::Guard nfd_guard{};
+    NFD::UniquePath nfd_path;
+    auto res = NFD::PickFolder(nfd_path, "./");
+
+    std::string path;
+    if (res == NFD_OKAY) {
+        path = nfd_path.get();
+    } else {
+        std::cerr << "Failed to pick folder, using current path as fallback\n";
+        path = "./";
+    }
+
     // Load model from each file with .obj ending
-    for (auto const& entry : fs::recursive_directory_iterator(path)) {
+    for (auto const& entry : fs::directory_iterator(path)) {
         if (entry.path().extension().string() == ".obj") {
             auto path = entry.path().string();
 
             std::cout << "Loading model from path " << path << "\n";
-            models.push_back(std::move(Model(window, path)));
+            try {
+                Model model{window, path};
+                models.push_back(std::move(model));
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to load model from " << path << "\n";
+            }
         }
     }
     return models;
