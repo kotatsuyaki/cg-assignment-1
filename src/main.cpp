@@ -40,6 +40,9 @@ int main(int argc, char** argv) {
     std::unique_ptr<Drawable> models_cloned = std::make_unique<ModelList>(models);
     Scene scene{std::move(shader), Vector3{0.2f, 0.2f, 0.2f}, std::move(models_cloned)};
 
+    // Setup transformation object
+    Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
+
     // Setup keyboard callbacks
     window.on_key(Key::Z, KeyAction::Down, [&](Key key, KeyAction action) { models.prev_model(); });
     window.on_key(Key::X, KeyAction::Down, [&](Key key, KeyAction action) { models.next_model(); });
@@ -49,18 +52,13 @@ int main(int argc, char** argv) {
     window.set_mouse_button_callback([](int button, int action, int mods) {});
     window.set_cursor_pos_callback([](double xpos, double ypos) {});
 
-    int view_width = DEFAULT_WIDTH, view_height = DEFAULT_HEIGHT;
     window.set_fb_size_callback([&](int width, int height) {
-        view_width = width;
-        view_height = height;
         glViewport(0, 0, width, height);
+        mvp.set_viewport_size(width, height);
     });
 
     // main loop
-    window.loop([&]() {
-        const auto mvp = Mvp(view_width, view_height);
-        scene.render(window, mvp);
-    });
+    window.loop([&]() { scene.render(window, mvp); });
 
     return 0;
 }

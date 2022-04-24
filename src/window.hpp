@@ -5,9 +5,6 @@
 #include <memory>
 #include <string>
 
-constexpr int DEFAULT_WIDTH = 800;
-constexpr int DEFAULT_HEIGHT = 600;
-
 // Wrapper class for GLFW initialization / termination.
 //
 // Existence of an instance of this guarantees that the GLFW library has been initialized.
@@ -44,6 +41,9 @@ class Window final {
     Window(const Glfw& glfw, std::string title, int width = DEFAULT_WIDTH,
            int height = DEFAULT_HEIGHT);
     ~Window();
+
+    static const int DEFAULT_WIDTH;
+    static const int DEFAULT_HEIGHT;
 
     // Prevent copy, allow move
     Window(const Window&) = delete;

@@ -12,6 +12,8 @@ class Perspective final : public Transform {
     ~Perspective();
     virtual Matrix4 matrix() const override;
 
+    void set_aspect(float aspect);
+
   private:
     struct PerspectiveImpl;
     std::unique_ptr<PerspectiveImpl> impl;

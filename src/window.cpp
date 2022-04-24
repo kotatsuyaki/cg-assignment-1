@@ -146,6 +146,9 @@ Window::Window(const Glfw& glfw, std::string title, int width, int height) {
 
 Window::~Window() {}
 
+const int Window::DEFAULT_WIDTH = 800;
+const int Window::DEFAULT_HEIGHT = 600;
+
 void Window::loop(std::function<void()> body) const {
     auto window = impl->window.get();
     glfwMakeContextCurrent(window);

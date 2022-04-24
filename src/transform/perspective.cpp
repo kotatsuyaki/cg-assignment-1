@@ -20,8 +20,10 @@ struct Perspective::PerspectiveImpl {
     PerspectiveImpl(float near_clip, float far_clip, float fovy, float aspect, float left,
                     float right, float top, float bottom)
         : near_clip(near_clip), far_clip(far_clip), fovy(fovy), aspect(aspect), left(left),
-          right(right), top(top), bottom(bottom) {}
+          right(right), top(top), bottom(bottom), cached(std::nullopt) {}
     Matrix4 matrix() const;
+    void set_aspect(float aspect);
+    mutable std::optional<Matrix4> cached;
 };
 
 Perspective::Perspective(float near_clip, float far_clip, float fovy, float aspect, float left,
@@ -32,17 +34,29 @@ Perspective::~Perspective() = default;
 Matrix4 Perspective::matrix() const { return impl->matrix(); }
 
 Matrix4 Perspective::PerspectiveImpl::matrix() const {
-    const float tan_term = std::tan(deg2rad(fovy) * 0.5f);
+    if (cached.has_value()) {
+        return *cached;
+    } else {
+        const float tan_term = std::tan(deg2rad(fovy) * 0.5f);
 
-    const float x_scale = 1.0f / (tan_term * aspect);
-    const float y_scale = 1.0f / tan_term;
-    const float z_scale_a = (near_clip + far_clip) / (near_clip - far_clip);
-    const float z_scale_b = 2 * near_clip * far_clip / (near_clip - far_clip);
+        const float x_scale = 1.0f / (tan_term * aspect);
+        const float y_scale = 1.0f / tan_term;
+        const float z_scale_a = (near_clip + far_clip) / (near_clip - far_clip);
+        const float z_scale_b = 2 * near_clip * far_clip / (near_clip - far_clip);
 
-    return Matrix4{x_scale, 0,       0,         0,         //
-                   0,       y_scale, 0,         0,         //
-                   0,       0,       z_scale_a, z_scale_b, //
-                   0,       0,       -1,        0};
+        Matrix4 mat{x_scale, 0,       0,         0,         //
+                    0,       y_scale, 0,         0,         //
+                    0,       0,       z_scale_a, z_scale_b, //
+                    0,       0,       -1,        0};
+        cached = mat;
+        return mat;
+    }
+}
+
+void Perspective::set_aspect(float aspect) { impl->set_aspect(aspect); }
+void Perspective::PerspectiveImpl::set_aspect(float aspect) {
+    this->aspect = aspect;
+    cached = std::nullopt;
 }
 
 struct PerspectiveBuilder::PerspectiveBuilderImpl {

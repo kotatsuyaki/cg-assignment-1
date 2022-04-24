@@ -17,6 +17,8 @@ class Mvp : public Transform {
     Mvp(Mvp&&) = default;
     Mvp& operator=(Mvp&&) = default;
 
+    void set_viewport_size(int width, int height);
+
   private:
     struct Impl;
     std::unique_ptr<Impl> impl;
