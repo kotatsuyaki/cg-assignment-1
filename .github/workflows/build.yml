@@ -100,11 +100,11 @@ jobs:
           submodules: true
       
       # Downlaod and extract macOS 10.10 SDK
-      - run: wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.10.sdk.tar.xz
-      - run: tar xvf MacOSX10.10.sdk.tar.xz
+      - run: wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.0-11.1/MacOSX10.14.sdk.tar.xz
+      - run: tar xf MacOSX10.14.sdk.tar.xz
 
       # Build
-      - run: CXX="$(brew --prefix llvm)/bin/clang++" CC="$(brew --prefix llvm)/bin/clang" cmake -DCMAKE_OSX_SYSROOT=$PWD/MacOSX10.10.sdk -DCMAKE_OSX_DEPLOYMENT_TARGET=10.10 .
+      - run: cmake -DCMAKE_OSX_SYSROOT=$PWD/MacOSX10.14.sdk -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 .
       - run: make -j
 
       # Upload
