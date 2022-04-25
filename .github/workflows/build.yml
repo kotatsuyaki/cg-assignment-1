@@ -42,7 +42,7 @@ jobs:
       # Upload
       - uses: actions/upload-artifact@v3
         with:
-          name: windows-22-bin
+          name: windows-19-bin
           path: Release/proj.exe
 
   build-ubuntu-20:
