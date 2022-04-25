@@ -92,40 +92,27 @@ jobs:
           name: ubuntu-18-bin
           path: proj
 
-  build-macos-bigsur:
+  build-macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      
+      # Downlaod and extract macOS 10.10 SDK
+      - run: |
+          wget https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.10.sdk.tar.xz
+          tar xf MacOSX10.10.sdk.tar.xz
 
       # Build
-      - run: cmake .
+      - run: cmake -DCMAKE_OSX_SYSROOT=MacOSX10.10.sdk -DCMAKE_OSX_DEPLOYMENT_TARGET=10.10 .
       - run: make -j
 
       # Upload
       - uses: actions/upload-artifact@v3
         with:
-          name: macos-bigsur-bin
+          name: macos-bin
           path: proj
-
-  build-macos-catalina:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      # Build
-      - run: cmake .
-      - run: make -j
-
-      # Upload
-      - uses: actions/upload-artifact@v3
-        with:
-          name: macos-catalina-bin
-          path: proj
-
 
   build-nix:
     runs-on: ubuntu-latest
