@@ -66,8 +66,8 @@ class Window final {
     void set_fb_size_callback(FbSizeCallback callback);
 
   private:
-    struct WindowImpl;
-    std::unique_ptr<WindowImpl> impl;
+    struct Impl;
+    std::unique_ptr<Impl> impl;
 };
 
 #endif

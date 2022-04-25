@@ -21,8 +21,8 @@ class Viewer final : public Transform {
     Viewer& operator=(Viewer&&) = default;
 
   private:
-    struct ViewerImpl;
-    std::unique_ptr<ViewerImpl> impl;
+    struct Impl;
+    std::unique_ptr<Impl> impl;
 };
 
 #endif

@@ -1,12 +1,12 @@
 #include "viewer.hpp"
 
-struct Viewer::ViewerImpl {
+struct Viewer::Impl {
     Vector3 eye, center, up;
-    ViewerImpl(Vector3 eye, Vector3 center, Vector3 up) : eye(eye), center(center), up(up) {}
+    Impl(Vector3 eye, Vector3 center, Vector3 up) : eye(eye), center(center), up(up) {}
     Matrix4 matrix() const;
 };
 
-Matrix4 Viewer::ViewerImpl::matrix() const {
+Matrix4 Viewer::Impl::matrix() const {
     // up is assumed to be a unit vector
 
     // new z axis, outwards from screen
@@ -27,6 +27,6 @@ Matrix4 Viewer::ViewerImpl::matrix() const {
 }
 
 Viewer::Viewer(Vector3 pos, Vector3 center, Vector3 up)
-    : impl(std::make_unique<ViewerImpl>(pos, center, up)) {}
+    : impl(std::make_unique<Impl>(pos, center, up)) {}
 Viewer::~Viewer() = default;
 Matrix4 Viewer::matrix() const { return impl->matrix(); }

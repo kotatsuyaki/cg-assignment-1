@@ -25,8 +25,8 @@ class Model final : public Drawable {
     virtual void draw() const override;
 
   private:
-    struct ModelImpl;
-    std::shared_ptr<ModelImpl> impl;
+    struct Impl;
+    std::shared_ptr<Impl> impl;
 };
 
 // Container of models that provides ability to cycle through the models.
@@ -51,8 +51,8 @@ class ModelList final : public Drawable {
     virtual void draw() const override;
 
   private:
-    struct ModelListImpl;
-    std::shared_ptr<ModelListImpl> impl;
+    struct Impl;
+    std::shared_ptr<Impl> impl;
 };
 
 #endif

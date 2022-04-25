@@ -13,8 +13,8 @@
 #include "shader.hpp"
 #include "transform/transform.hpp"
 
-struct Scene::SceneImpl {
-    SceneImpl(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable)
+struct Scene::Impl {
+    Impl(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable)
         : shader(std::move(shader)), clear_color(clear_color), drawable(std::move(drawable)) {}
     Shader shader;
     Vector3 clear_color;
@@ -22,7 +22,7 @@ struct Scene::SceneImpl {
 };
 
 Scene::Scene(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable)
-    : impl(std::make_unique<SceneImpl>(std::move(shader), clear_color, std::move(drawable))) {}
+    : impl(std::make_unique<Impl>(std::move(shader), clear_color, std::move(drawable))) {}
 Scene::~Scene() = default;
 
 void Scene::render(const Window& window, const Transform& transform) {

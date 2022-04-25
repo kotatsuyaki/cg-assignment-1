@@ -47,8 +47,8 @@ class ProjectionBuilder final {
     Projection build() const;
 
   private:
-    struct ProjectionBuilderImpl;
-    std::unique_ptr<ProjectionBuilderImpl> impl;
+    struct Impl;
+    std::unique_ptr<Impl> impl;
 };
 
 #endif

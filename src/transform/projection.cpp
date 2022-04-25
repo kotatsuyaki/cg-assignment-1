@@ -99,7 +99,7 @@ void Projection::Impl::set_mode(Mode mode) {
     cached = std::nullopt;
 }
 
-struct ProjectionBuilder::ProjectionBuilderImpl {
+struct ProjectionBuilder::Impl {
     std::optional<float> near_clip;
     std::optional<float> far_clip;
     std::optional<float> fovy;
@@ -110,7 +110,7 @@ struct ProjectionBuilder::ProjectionBuilderImpl {
     std::optional<float> bottom;
 };
 
-ProjectionBuilder::ProjectionBuilder() { impl = std::make_unique<ProjectionBuilderImpl>(); }
+ProjectionBuilder::ProjectionBuilder() { impl = std::make_unique<Impl>(); }
 ProjectionBuilder::~ProjectionBuilder() = default;
 
 ProjectionBuilder& ProjectionBuilder::with_near_clip(float value) {

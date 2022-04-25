@@ -50,8 +50,8 @@ std::optional<Key> int_to_key(int raw);
 std::optional<KeyAction> int_to_action(int raw);
 } // namespace
 
-struct Window::WindowImpl {
-    WindowImpl(GLFWwindow* window) : window(window), key_callbacks() {
+struct Window::Impl {
+    Impl(GLFWwindow* window) : window(window), key_callbacks() {
         glfwSetWindowUserPointer(window, this);
         glfwSetKeyCallback(window, key_callback);
         glfwSetScrollCallback(window, scroll_callback);
@@ -62,7 +62,7 @@ struct Window::WindowImpl {
 
     static void key_callback(GLFWwindow* window, int raw_key, int scancode, int raw_action,
                              int mods) {
-        auto impl = static_cast<Window::WindowImpl*>(glfwGetWindowUserPointer(window));
+        auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
         auto key = int_to_key(raw_key);
         auto action = int_to_action(raw_action);
 
@@ -78,21 +78,21 @@ struct Window::WindowImpl {
     }
 
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-        auto impl = static_cast<Window::WindowImpl*>(glfwGetWindowUserPointer(window));
+        auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
         if (auto callback = impl->_scroll_callback) {
             (*callback)(xoffset, yoffset);
         }
     }
 
     static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-        auto impl = static_cast<Window::WindowImpl*>(glfwGetWindowUserPointer(window));
+        auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
         if (auto callback = impl->_mouse_button_callback) {
             (*callback)(button, action, mods);
         }
     }
 
     static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
-        auto impl = static_cast<Window::WindowImpl*>(glfwGetWindowUserPointer(window));
+        auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
         if (auto callback = impl->_cursor_pos_callback) {
             (*callback)(xpos, ypos);
         }
@@ -100,7 +100,7 @@ struct Window::WindowImpl {
 
     static void fb_size_callback(GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
-        auto impl = static_cast<Window::WindowImpl*>(glfwGetWindowUserPointer(window));
+        auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
         if (auto callback = impl->_fb_size_callback) {
             (*callback)(width, height);
         }
@@ -142,7 +142,7 @@ Window::Window(const Glfw& glfw, std::string title, int width, int height) {
         throw std::runtime_error("Failed to initialize GLAD");
     }
 
-    this->impl = std::make_unique<Window::WindowImpl>(window);
+    this->impl = std::make_unique<Window::Impl>(window);
 }
 
 Window::~Window() {}

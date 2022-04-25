@@ -16,25 +16,25 @@ void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
                std::vector<GLfloat>& colors, tinyobj::shape_t* shape);
 } // namespace
 
-struct Model::ModelImpl {
+struct Model::Impl {
     GLuint vao;
     GLuint vertices;
     GLuint colors;
     size_t vertex_count;
 
-    ModelImpl(const Window& window, std::string_view path);
+    Impl(const Window& window, std::string_view path);
 
     // Delete the OpenGL objects
-    ~ModelImpl();
+    ~Impl();
 
     // Prevent copy and move
-    ModelImpl(const ModelImpl&) = delete;
-    ModelImpl& operator=(const ModelImpl&) = delete;
-    ModelImpl(ModelImpl&&) = delete;
-    ModelImpl& operator=(ModelImpl&&) = delete;
+    Impl(const Impl&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(Impl&&) = delete;
 };
 
-Model::ModelImpl::ModelImpl(const Window& window, std::string_view path) {
+Model::Impl::Impl(const Window& window, std::string_view path) {
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     tinyobj::attrib_t attrib;
@@ -73,14 +73,14 @@ Model::ModelImpl::ModelImpl(const Window& window, std::string_view path) {
     glEnableVertexAttribArray(1);
 }
 
-Model::ModelImpl::~ModelImpl() {
+Model::Impl::~Impl() {
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vertices);
     glDeleteBuffers(1, &colors);
 }
 
 Model::Model(const Window& window, std::string_view path)
-    : impl(std::make_shared<ModelImpl>(window, path)) {}
+    : impl(std::make_shared<Impl>(window, path)) {}
 
 void Model::draw() const {
     glBindVertexArray(impl->vao);
@@ -88,18 +88,18 @@ void Model::draw() const {
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(impl->vertex_count));
 }
 
-struct ModelList::ModelListImpl {
+struct ModelList::Impl {
     std::vector<Model> models;
     size_t index;
-    ModelListImpl() : models(), index() {}
+    Impl() : models(), index() {}
 
-    ModelListImpl(const ModelListImpl&) = delete;
-    void operator=(const ModelListImpl&) = delete;
-    ModelListImpl(ModelListImpl&&) = delete;
-    void operator=(ModelListImpl&&) = delete;
+    Impl(const Impl&) = delete;
+    void operator=(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    void operator=(Impl&&) = delete;
 };
 
-ModelList::ModelList() : impl(std::make_shared<ModelListImpl>()) {}
+ModelList::ModelList() : impl(std::make_shared<Impl>()) {}
 
 void ModelList::push_back(Model&& model) { impl->models.emplace_back(std::move(model)); }
 

@@ -23,8 +23,8 @@ class Scene final {
     void render(const Window& window, const Transform& transform);
 
   private:
-    struct SceneImpl;
-    std::unique_ptr<SceneImpl> impl;
+    struct Impl;
+    std::unique_ptr<Impl> impl;
 };
 
 #endif
