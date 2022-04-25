@@ -45,14 +45,6 @@ Model::ModelImpl::ModelImpl(const Window& window, std::string_view path) {
 
     bool res = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.data());
 
-    if (!warn.empty()) {
-        std::cerr << "tinyobjloader warning:\n" << warn << "\n";
-    }
-
-    if (!err.empty()) {
-        std::cerr << "tinyobjloader error:\n" << err << "\n";
-    }
-
     if (res == false) {
         throw std::runtime_error("Failed to load object file");
     }

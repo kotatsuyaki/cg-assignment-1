@@ -14,6 +14,7 @@
           cmake
           pkg-config
           glfw3
+          dbus
         ];
         dev-deps = with pkgs; [
           bear
