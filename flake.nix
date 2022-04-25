@@ -28,6 +28,7 @@
           src = ./.;
           name = "cg1";
           buildInputs = deps;
+          cmakeFlags = [ "-DSYSTEM_GLFW=YES" ];
         };
         devShell = pkgs.mkShell {
           buildInputs = deps ++ dev-deps;
