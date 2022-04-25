@@ -92,7 +92,7 @@ jobs:
           name: ubuntu-18-bin
           path: proj
 
-  build-macos:
+  build-macos-bigsur:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -106,8 +106,26 @@ jobs:
       # Upload
       - uses: actions/upload-artifact@v3
         with:
-          name: macos-bin
+          name: macos-bigsur-bin
           path: proj
+
+  build-macos-catalina:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Build
+      - run: cmake .
+      - run: make -j
+
+      # Upload
+      - uses: actions/upload-artifact@v3
+        with:
+          name: macos-catalina-bin
+          path: proj
+
 
   build-nix:
     runs-on: ubuntu-latest
