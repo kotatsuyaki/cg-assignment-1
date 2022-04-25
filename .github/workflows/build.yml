@@ -2,7 +2,7 @@ on:
   - push
 
 env:
-  UBUNTU_DEPS: cmake make pkg-config libglfw3 libglfw3-dev
+  UBUNTU_DEPS: cmake make pkg-config libglfw3 libglfw3-dev libdbus-1-3 libdbus-1-dev
 
 name: Build
 jobs:
