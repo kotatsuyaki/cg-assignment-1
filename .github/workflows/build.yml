@@ -104,7 +104,7 @@ jobs:
       - run: tar xf MacOSX10.14.sdk.tar.xz
 
       # Build
-      - run: cmake -DCMAKE_OSX_SYSROOT=$PWD/MacOSX10.14.sdk -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 .
+      - run: CC="$(brew --prefix llvm)/bin/clang" CXX="$(brew --prefix llvm)/bin/clang++" cmake -DCMAKE_OSX_SYSROOT=$PWD/MacOSX10.14.sdk -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 .
       - run: make -j
 
       # Upload
