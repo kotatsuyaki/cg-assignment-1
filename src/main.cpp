@@ -45,7 +45,7 @@ void init() {
     std::unique_ptr<Drawable> models_cloned = std::make_unique<ModelList>(models);
     Scene scene{std::move(shader), {0.2f, 0.2f, 0.2f}, std::move(models_cloned)};
 
-    // Setup transformation object
+    // Setup transformation and control objects
     Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
     MvpControl control{};
 
@@ -74,16 +74,8 @@ void init() {
         control.update_offset({0, 0, -yoffset});
     });
 
-    window.set_mouse_button_callback([&](KeyAction action) {
-        switch (action) {
-        case KeyAction::Down:
-            control.set_pressed(true);
-            break;
-        case KeyAction::Up:
-            control.set_pressed(false);
-            break;
-        }
-    });
+    window.set_mouse_button_callback(
+        [&](KeyAction action) { control.set_pressed(action == KeyAction::Down); });
 
     std::optional<std::pair<float, float>> last_cursor_pos;
     window.set_cursor_pos_callback([&](float xpos, float ypos) {
