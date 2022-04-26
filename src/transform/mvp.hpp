@@ -17,16 +17,24 @@ class Mvp : public Transform {
     Mvp(Mvp&&) = default;
     Mvp& operator=(Mvp&&) = default;
 
+    // Updates the viewport size.
     void set_viewport_size(int width, int height);
 
     enum class ProjectMode { Perspective, Orthogonal };
+
+    // Updates the projection mode.
     void set_project_mode(ProjectMode mode);
 
-    // Prints the underlying matrices
+    // Prints the underlying matrices.
     void debug_print() const;
 
+    // Updates the model transformation parameters.
+    void update_translation(Vector3 delta);
+    void update_rotation(Vector3 delta);
+    void update_scaling(Vector3 delta);
+
   private:
-    struct Impl;
+    class Impl;
     std::unique_ptr<Impl> impl;
 };
 

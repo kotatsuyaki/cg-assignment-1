@@ -8,11 +8,14 @@ add_executable(proj
     src/prompt.cpp
     src/scene.cpp
     src/shader.cpp
-    src/window.cpp
     src/transform/mvp.cpp
     src/transform/projection.cpp
+    src/transform/rotate.cpp
     src/transform/rotation.cpp
+    src/transform/scale.cpp
+    src/transform/translate.cpp
     src/transform/viewer.cpp
+    src/window.cpp
     3rdparty/glad/glad.c
 )
 set_property(TARGET proj PROPERTY CXX_STANDARD 17)

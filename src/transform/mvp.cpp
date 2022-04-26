@@ -1,5 +1,8 @@
 #include "mvp.hpp"
 #include "projection.hpp"
+#include "rotate.hpp"
+#include "scale.hpp"
+#include "translate.hpp"
 #include "viewer.hpp"
 
 #include <array>
@@ -7,7 +10,8 @@
 #include <optional>
 #include <utility>
 
-struct Mvp::Impl {
+class Mvp::Impl {
+  public:
     Impl(int width, int height);
 
     Matrix4 matrix() const;
@@ -15,8 +19,18 @@ struct Mvp::Impl {
     void set_project_mode(Projection::Mode mode);
     void debug_print() const;
 
+    void update_translation(Vector3 delta);
+    void update_rotation(Vector3 delta);
+    void update_scaling(Vector3 delta);
+
+  private:
     Projection proj;
     Viewer viewer;
+
+    Translate trans;
+    Rotate rotate;
+    Scale scale;
+
     mutable std::optional<Matrix4> cached;
 };
 
@@ -31,7 +45,8 @@ Mvp::Impl::Impl(int width, int height)
                .with_fovy(80)
                .with_aspect(static_cast<float>(width) / static_cast<float>(height))
                .build()),
-      viewer({0.0, 0.0, 2.0}, {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}), cached(std::nullopt) {}
+      viewer({0.0, 0.0, 2.0}, {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}), trans({0, 0, 0}),
+      rotate({0, 0, 0}), scale({1, 1, 1}), cached(std::nullopt) {}
 
 Mvp::Mvp(int width, int height) : impl(std::make_unique<Impl>(width, height)) {}
 Mvp::~Mvp() = default;
@@ -68,13 +83,29 @@ void Mvp::Impl::debug_print() const {
     }
 }
 
+void Mvp::update_translation(Vector3 delta) { impl->update_translation(delta); }
+void Mvp::Impl::update_translation(Vector3 delta) {
+    trans.change(delta);
+    cached = std::nullopt;
+}
+
+void Mvp::update_rotation(Vector3 delta) { impl->update_rotation(delta); }
+void Mvp::Impl::update_rotation(Vector3 delta) {
+    rotate.change(delta);
+    cached = std::nullopt;
+}
+
+void Mvp::update_scaling(Vector3 delta) { impl->update_scaling(delta); }
+void Mvp::Impl::update_scaling(Vector3 delta) {
+    rotate.change(delta);
+    cached = std::nullopt;
+}
+
 Matrix4 Mvp::Impl::matrix() const {
-    if (cached.has_value()) {
-        return *cached;
-    } else {
-        auto mat = proj.matrix() * viewer.matrix();
-        cached = mat;
-        return mat;
+    if (cached.has_value() == false) {
+        cached =
+            proj.matrix() * viewer.matrix() * trans.matrix() * rotate.matrix() * scale.matrix();
     }
+    return *cached;
 }
 Matrix4 Mvp::matrix() const { return impl->matrix(); }
