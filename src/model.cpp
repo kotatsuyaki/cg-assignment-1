@@ -17,12 +17,15 @@ void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
 } // namespace
 
 struct Model::Impl {
-    GLuint vao;
-    GLuint vertices;
-    GLuint colors;
-    size_t vertex_count;
+    std::string path;
 
-    Impl(const Window& window, std::string_view path);
+    mutable bool loaded;
+    mutable GLuint vao;
+    mutable GLuint vertices;
+    mutable GLuint colors;
+    mutable size_t vertex_count;
+
+    Impl(std::string_view path);
 
     // Delete the OpenGL objects
     ~Impl();
@@ -32,9 +35,38 @@ struct Model::Impl {
     Impl& operator=(const Impl&) = delete;
     Impl(Impl&&) = delete;
     Impl& operator=(Impl&&) = delete;
+
+    void draw() const;
+    void load() const;
+    void unload() const;
 };
 
-Model::Impl::Impl(const Window& window, std::string_view path) {
+Model::Impl::Impl(std::string_view path) : path(path), loaded(false) {}
+
+Model::Impl::~Impl() { unload(); }
+
+Model::Model(std::string_view path) : impl(std::make_shared<Impl>(path)) {}
+
+void Model::draw() const { impl->draw(); }
+void Model::Impl::draw() const {
+    if (loaded == false) {
+        load();
+        loaded = true;
+    }
+    glBindVertexArray(vao);
+    // NOTE: We don't have boost::numeric_cast available.  This cast may overflow.
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count));
+}
+
+void Model::Impl::unload() const {
+    if (loaded) {
+        glDeleteBuffers(1, &vertices);
+        glDeleteBuffers(1, &colors);
+        glDeleteVertexArrays(1, &vao);
+    }
+}
+
+void Model::Impl::load() const {
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     tinyobj::attrib_t attrib;
@@ -73,25 +105,10 @@ Model::Impl::Impl(const Window& window, std::string_view path) {
     glEnableVertexAttribArray(1);
 }
 
-Model::Impl::~Impl() {
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vertices);
-    glDeleteBuffers(1, &colors);
-}
-
-Model::Model(const Window& window, std::string_view path)
-    : impl(std::make_shared<Impl>(window, path)) {}
-
-void Model::draw() const {
-    glBindVertexArray(impl->vao);
-    // NOTE: We don't have boost::numeric_cast available.  This cast may overflow.
-    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(impl->vertex_count));
-}
-
 struct ModelList::Impl {
     std::vector<Model> models;
     size_t index;
-    Impl() : models(), index() {}
+    Impl(const std::vector<std::string>& model_paths);
 
     Impl(const Impl&) = delete;
     void operator=(const Impl&) = delete;
@@ -99,9 +116,13 @@ struct ModelList::Impl {
     void operator=(Impl&&) = delete;
 };
 
-ModelList::ModelList() : impl(std::make_shared<Impl>()) {}
-
-void ModelList::push_back(Model&& model) { impl->models.emplace_back(std::move(model)); }
+ModelList::ModelList(const std::vector<std::string>& model_paths)
+    : impl(std::make_shared<Impl>(model_paths)) {}
+ModelList::Impl::Impl(const std::vector<std::string>& model_paths) : models(), index(0) {
+    for (const auto& path : model_paths) {
+        models.push_back(Model(path));
+    }
+}
 
 const Model& ModelList::current() const {
     if (impl->models.size() == 0) {

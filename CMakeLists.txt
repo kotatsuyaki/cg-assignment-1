@@ -4,17 +4,19 @@ project(proj VERSION 1.0)
 add_executable(proj
     src/main.cpp
     src/matrix.cpp
-    src/window.cpp
-    src/shader.cpp
     src/model.cpp
+    src/prompt.cpp
     src/scene.cpp
+    src/shader.cpp
+    src/window.cpp
+    src/transform/mvp.cpp
     src/transform/projection.cpp
     src/transform/rotation.cpp
     src/transform/viewer.cpp
-    src/transform/mvp.cpp
     3rdparty/glad/glad.c
 )
 set_property(TARGET proj PROPERTY CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories(3rdparty)
 include_directories(3rdparty/nativefiledialog-extended/src/include)

@@ -19,7 +19,7 @@ class Window;
 // The data buffers are deleted when all copies are destructed.
 class Model final : public Drawable {
   public:
-    Model(const Window& window, std::string_view path);
+    Model(std::string_view path);
 
     // Draws the model using GL functions
     virtual void draw() const override;
@@ -34,10 +34,7 @@ class Model final : public Drawable {
 // Note that copies refers to the same data.
 class ModelList final : public Drawable {
   public:
-    ModelList();
-
-    // Pushes a new model into the list.
-    void push_back(Model&& model);
+    ModelList(const std::vector<std::string>& model_paths);
 
     // Returns a reference to the current model.
     const Model& current() const;
