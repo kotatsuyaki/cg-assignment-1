@@ -22,6 +22,9 @@ class Mvp : public Transform {
     enum class ProjectMode { Perspective, Orthogonal };
     void set_project_mode(ProjectMode mode);
 
+    // Prints the underlying matrices
+    void debug_print() const;
+
   private:
     struct Impl;
     std::unique_ptr<Impl> impl;

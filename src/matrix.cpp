@@ -19,6 +19,7 @@
 #include "matrix.hpp"
 
 #include <cmath>
+#include <iomanip>
 #include <utility>
 
 const float DEG2RAD = 3.141593f / 180;
@@ -635,9 +636,20 @@ Vector2 operator*(const Vector2& v, const Matrix2& rhs) {
     return Vector2(v.x * rhs[0] + v.y * rhs[2], v.x * rhs[1] + v.y * rhs[3]);
 }
 
+// Fixed-width float format
+std::ostream& ff(std::ostream& os) {
+    os << std::setw(10) << std::right << std::setfill(' ') << std::fixed << std::setprecision(4);
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const Matrix2& m) {
-    os << "(" << m[0] << ",\t" << m[1] << ")\n"
-       << "(" << m[2] << ",\t" << m[3] << ")\n";
+    for (const size_t idx : {0, 2}) {
+        os << "(";
+        ff(os) << m[idx + 0];
+        os << ",";
+        ff(os) << m[idx + 1];
+        os << ")\n";
+    }
     return os;
 }
 // END OF MATRIX2 INLINE //////////////////////////////////////////////////////
@@ -804,9 +816,15 @@ Vector3 operator*(const Vector3& v, const Matrix3& m) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Matrix3& m) {
-    os << "(" << m[0] << ",\t" << m[1] << ",\t" << m[2] << ")\n"
-       << "(" << m[3] << ",\t" << m[4] << ",\t" << m[5] << ")\n"
-       << "(" << m[6] << ",\t" << m[7] << ",\t" << m[8] << ")\n";
+    for (const size_t idx : {0, 3, 6}) {
+        os << "(";
+        ff(os) << m[idx + 0];
+        os << ",";
+        ff(os) << m[idx + 1];
+        os << ",";
+        ff(os) << m[idx + 2];
+        os << ")\n";
+    }
     return os;
 }
 // END OF MATRIX3 INLINE //////////////////////////////////////////////////////
@@ -1046,10 +1064,17 @@ Vector3 operator*(const Vector3& v, const Matrix4& m) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Matrix4& m) {
-    os << "(" << m[0] << ",\t" << m[1] << ",\t" << m[2] << ",\t" << m[3] << ")\n"
-       << "(" << m[4] << ",\t" << m[5] << ",\t" << m[6] << ",\t" << m[7] << ")\n"
-       << "(" << m[8] << ",\t" << m[9] << ",\t" << m[10] << ",\t" << m[11] << ")\n"
-       << "(" << m[12] << ",\t" << m[13] << ",\t" << m[14] << ",\t" << m[15] << ")\n";
+    for (const size_t idx : {0, 4, 8, 12}) {
+        os << "(";
+        ff(os) << m[idx + 0];
+        os << ",";
+        ff(os) << m[idx + 1];
+        os << ",";
+        ff(os) << m[idx + 2];
+        os << ",";
+        ff(os) << m[idx + 3];
+        os << ")\n";
+    }
     return os;
 }
 // END OF MATRIX4 INLINE //////////////////////////////////////////////////////

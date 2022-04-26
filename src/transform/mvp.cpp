@@ -2,8 +2,10 @@
 #include "projection.hpp"
 #include "viewer.hpp"
 
+#include <array>
 #include <memory>
 #include <optional>
+#include <utility>
 
 struct Mvp::Impl {
     Impl(int width, int height);
@@ -11,6 +13,7 @@ struct Mvp::Impl {
     Matrix4 matrix() const;
     void set_viewport_size(int width, int height);
     void set_project_mode(Projection::Mode mode);
+    void debug_print() const;
 
     Projection proj;
     Viewer viewer;
@@ -54,6 +57,15 @@ void Mvp::set_project_mode(ProjectMode mode) {
         break;
     }
     impl->set_project_mode(pmode);
+}
+
+void Mvp::debug_print() const { impl->debug_print(); }
+void Mvp::Impl::debug_print() const {
+    std::array<std::pair<const char*, const Transform&>, 2> pairs{
+        {{"Viewing matrix", viewer}, {"Projection matrix", proj}}};
+    for (const auto& [name, transform] : pairs) {
+        std::cout << name << ":\n" << transform.matrix() << "\n";
+    }
 }
 
 Matrix4 Mvp::Impl::matrix() const {

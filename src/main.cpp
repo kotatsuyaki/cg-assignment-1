@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
     window.on_key(Key::Z, KeyAction::Down, [&]() { models.prev_model(); });
     window.on_key(Key::X, KeyAction::Down, [&]() { models.next_model(); });
     window.on_key(Key::W, KeyAction::Down, [&]() { scene.switch_render_mode(); });
+    window.on_key(Key::I, KeyAction::Down, [&]() { mvp.debug_print(); });
     window.on_key(Key::O, KeyAction::Down,
                   [&]() { mvp.set_project_mode(Mvp::ProjectMode::Orthogonal); });
     window.on_key(Key::P, KeyAction::Down,
