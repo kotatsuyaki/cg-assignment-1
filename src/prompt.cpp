@@ -15,7 +15,8 @@ fs::path prompt_dir() {
     NFD::UniquePath nfd_path;
 
     // Prompt for path
-    auto res = NFD::PickFolder(nfd_path, fs::current_path().c_str());
+    const auto current_path = fs::current_path().string();
+    auto res = NFD::PickFolder(nfd_path, current_path.c_str());
 
     fs::path path;
     if (res == NFD_OKAY) {
