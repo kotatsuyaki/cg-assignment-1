@@ -22,6 +22,8 @@ class Scene final {
 
     void render(const Window& window, const Transform& transform);
 
+    void switch_render_mode();
+
   private:
     struct Impl;
     std::unique_ptr<Impl> impl;
