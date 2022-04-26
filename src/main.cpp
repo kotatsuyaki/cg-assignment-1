@@ -1,10 +1,7 @@
-#include <cstdlib>
 #include <exception>
-#include <ios>
 #include <iostream>
 #include <memory>
 #include <optional>
-#include <string>
 
 #include "control.hpp"
 #include "matrix.hpp"
@@ -14,15 +11,27 @@
 #include "scene.hpp"
 #include "shader.hpp"
 #include "transform/mvp.hpp"
-#include "vector.hpp"
 #include "window.hpp"
 
 using std::size_t;
 
-int main(int argc, char** argv) {
+void init();
+
+int main() {
+    try {
+        init();
+    } catch (const std::exception& e) {
+        std::cerr << "Exception caught: " << e.what() << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+void init() {
     // Prompt for model path before GLFW window creation
     const auto model_paths = prompt_model_paths();
 
+    // Initialize glfw and window
     Glfw glfw{};
     Window window{glfw, "107021129 HW1"};
 
@@ -34,7 +43,7 @@ int main(int argc, char** argv) {
 
     // Setup scene
     std::unique_ptr<Drawable> models_cloned = std::make_unique<ModelList>(models);
-    Scene scene{std::move(shader), Vector3{0.2f, 0.2f, 0.2f}, std::move(models_cloned)};
+    Scene scene{std::move(shader), {0.2f, 0.2f, 0.2f}, std::move(models_cloned)};
 
     // Setup transformation object
     Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
@@ -92,6 +101,4 @@ int main(int argc, char** argv) {
         control.update(mvp);
         scene.render(window, mvp);
     });
-
-    return 0;
 }
