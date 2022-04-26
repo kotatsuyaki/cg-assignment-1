@@ -21,7 +21,7 @@ class Quad : public Drawable {
     ~Quad();
     virtual void draw() const override;
 
-    static const size_t VERTEX_COUNT;
+    static const GLsizei VERTEX_COUNT;
 
   private:
     GLuint vao;
@@ -152,4 +152,4 @@ void Quad::draw() const {
     glDrawArrays(GL_TRIANGLES, 0, Quad::VERTEX_COUNT);
 }
 
-const size_t Quad::VERTEX_COUNT = 6;
+const GLsizei Quad::VERTEX_COUNT = 6;
