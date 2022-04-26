@@ -17,6 +17,9 @@
 using std::size_t;
 
 int main(int argc, char** argv) {
+    // Prompt for model path before GLFW window creation
+    const auto model_paths = prompt_model_paths();
+
     Glfw glfw{};
     Window window{glfw, "107021129 HW1"};
 
@@ -24,7 +27,6 @@ int main(int argc, char** argv) {
     Shader shader{window, resources::SHADER_VS, resources::SHADER_FS};
 
     // Load models
-    const auto model_paths = prompt_model_paths();
     ModelList models{model_paths};
 
     // Setup scene
