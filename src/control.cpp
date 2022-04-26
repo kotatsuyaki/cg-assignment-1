@@ -1,7 +1,7 @@
 #include "control.hpp"
 
 namespace {
-const Vector3 DIRECTION_SCALES{0.01, 0.01, 0.01};
+const Vector3 DIRECTION_SCALES{0.01f, 0.01f, 0.01f};
 const float ROTATION_SCALE = 5.0;
 } // namespace
 
