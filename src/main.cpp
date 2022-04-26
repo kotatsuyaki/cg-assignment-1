@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <exception>
+#include <ios>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -45,6 +46,10 @@ int main(int argc, char** argv) {
                   [&]() { mvp.set_project_mode(Mvp::ProjectMode::Orthogonal); });
     window.on_key(Key::P, KeyAction::Down,
                   [&]() { mvp.set_project_mode(Mvp::ProjectMode::Perspective); });
+    window.on_key(Key::V, KeyAction::Down, [&]() {
+        const bool on = window.toggle_vsync();
+        std::cerr << "Vsync: " << std::boolalpha << on << "\n";
+    });
 
     // Setup other callbacks
     window.set_scroll_callback([](double xoffset, double yoffset) {});

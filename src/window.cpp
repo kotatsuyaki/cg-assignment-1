@@ -51,7 +51,7 @@ std::optional<KeyAction> int_to_action(int raw);
 } // namespace
 
 struct Window::Impl {
-    Impl(GLFWwindow* window) : window(window), key_callbacks() {
+    Impl(GLFWwindow* window) : window(window), key_callbacks(), vsync(true) {
         glfwSetWindowUserPointer(window, this);
         glfwSetKeyCallback(window, key_callback);
         glfwSetScrollCallback(window, scroll_callback);
@@ -115,6 +115,8 @@ struct Window::Impl {
     std::optional<FbSizeCallback> _fb_size_callback;
 
     std::unordered_map<std::pair<Key, KeyAction>, KeyCallback, PairHash> key_callbacks;
+
+    bool vsync;
 };
 
 Window::Window(const Glfw& glfw, std::string title, int width, int height) {
@@ -135,6 +137,7 @@ Window::Window(const Glfw& glfw, std::string title, int width, int height) {
     }
 
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
 
     // Load OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -177,6 +180,12 @@ void Window::set_fb_size_callback(FbSizeCallback callback) { impl->_fb_size_call
 
 void Window::on_key(Key key, KeyAction action, KeyCallback callback) {
     impl->key_callbacks.insert({{key, action}, callback});
+}
+
+bool Window::toggle_vsync() {
+    impl->vsync = !(impl->vsync);
+    glfwSwapInterval(static_cast<int>(impl->vsync));
+    return impl->vsync;
 }
 
 namespace {

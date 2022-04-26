@@ -65,6 +65,11 @@ class Window final {
     void set_cursor_pos_callback(CursorPosCallback callback);
     void set_fb_size_callback(FbSizeCallback callback);
 
+    // Toggles vsync on / off.
+    // Vsync defaults to on.
+    // Returns true if vsync is on after the toggle.
+    bool toggle_vsync();
+
   private:
     struct Impl;
     std::unique_ptr<Impl> impl;
