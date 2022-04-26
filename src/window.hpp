@@ -29,9 +29,9 @@ enum class KeyAction { Down, Up };
 
 // Callback types used in windows.
 using KeyCallback = std::function<void()>;
-using ScrollCallback = std::function<void(double, double)>;
-using MouseButtonCallback = std::function<void(int, int, int)>;
-using CursorPosCallback = std::function<void(double, double)>;
+using ScrollCallback = std::function<void(float, float)>;
+using MouseButtonCallback = std::function<void(KeyAction)>;
+using CursorPosCallback = std::function<void(float, float)>;
 using FbSizeCallback = std::function<void(int, int)>;
 
 // Wrapper class for GLFW windows.
@@ -59,7 +59,7 @@ class Window final {
 
     // Sets callbacks.
     // Must not be called while `loop` is running.
-    void on_key(Key key, KeyAction action, KeyCallback callback);
+    void on_keydown(Key key, KeyCallback callback);
     void set_scroll_callback(ScrollCallback callback);
     void set_mouse_button_callback(MouseButtonCallback callback);
     void set_cursor_pos_callback(CursorPosCallback callback);

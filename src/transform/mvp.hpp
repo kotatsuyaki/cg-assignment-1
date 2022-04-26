@@ -35,6 +35,10 @@ class Mvp : public StagedTransform {
     void update_rotation(Vector3 delta);
     void update_scaling(Vector3 delta);
 
+    void update_eyepos(Vector3 delta);
+    void update_center(Vector3 delta);
+    void update_up(Vector3 delta);
+
   private:
     class Impl;
     std::unique_ptr<Impl> impl;

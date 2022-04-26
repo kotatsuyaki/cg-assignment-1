@@ -20,6 +20,10 @@ class Viewer final : public Transform {
     Viewer(Viewer&&) = default;
     Viewer& operator=(Viewer&&) = default;
 
+    void change_eyepos(Vector3 delta);
+    void change_up(Vector3 delta);
+    void change_center(Vector3 delta);
+
   private:
     struct Impl;
     std::unique_ptr<Impl> impl;

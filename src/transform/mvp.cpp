@@ -26,6 +26,10 @@ class Mvp::Impl {
     void update_rotation(Vector3 delta);
     void update_scaling(Vector3 delta);
 
+    void update_eyepos(Vector3 delta);
+    void update_center(Vector3 delta);
+    void update_up(Vector3 delta);
+
   private:
     Projection proj;
     Viewer viewer;
@@ -85,10 +89,13 @@ void Mvp::set_project_mode(ProjectMode mode) {
 
 void Mvp::debug_print() const { impl->debug_print(); }
 void Mvp::Impl::debug_print() const {
-    std::array<std::pair<const char*, const Transform&>, 2> pairs{
-        {{"Viewing matrix", viewer}, {"Projection matrix", proj}}};
+    std::array<std::pair<const char*, const Transform&>, 5> pairs{{{"Viewing", viewer},
+                                                                   {"Projection", proj},
+                                                                   {"Translation", trans},
+                                                                   {"Rotation", rotate},
+                                                                   {"Scaling", scale}}};
     for (const auto& [name, transform] : pairs) {
-        std::cout << name << ":\n" << transform.matrix() << "\n";
+        std::cout << name << " matrix:\n" << transform.matrix() << "\n";
     }
 }
 
@@ -106,8 +113,26 @@ void Mvp::Impl::update_rotation(Vector3 delta) {
 
 void Mvp::update_scaling(Vector3 delta) { impl->update_scaling(delta); }
 void Mvp::Impl::update_scaling(Vector3 delta) {
-    rotate.change(delta);
+    scale.change(delta);
     inval_trs();
+}
+
+void Mvp::update_eyepos(Vector3 delta) { impl->update_eyepos(delta); }
+void Mvp::Impl::update_eyepos(Vector3 delta) {
+    viewer.change_eyepos(delta);
+    inval_vp();
+}
+
+void Mvp::update_center(Vector3 delta) { impl->update_center(delta); }
+void Mvp::Impl::update_center(Vector3 delta) {
+    viewer.change_center(delta);
+    inval_vp();
+}
+
+void Mvp::update_up(Vector3 delta) { impl->update_up(delta); }
+void Mvp::Impl::update_up(Vector3 delta) {
+    viewer.change_up(delta);
+    inval_vp();
 }
 
 Matrix4 Mvp::matrix() const { return impl->matrix(); }

@@ -80,21 +80,26 @@ struct Window::Impl {
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
         auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
         if (auto callback = impl->_scroll_callback) {
-            (*callback)(xoffset, yoffset);
+            (*callback)(static_cast<float>(xoffset), static_cast<float>(yoffset));
         }
     }
 
-    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    static void mouse_button_callback(GLFWwindow* window, int button, int raw_action, int mods) {
+        const auto action = int_to_action(raw_action);
+        if (button != GLFW_MOUSE_BUTTON_LEFT || action.has_value() == false) {
+            return;
+        }
+
         auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
         if (auto callback = impl->_mouse_button_callback) {
-            (*callback)(button, action, mods);
+            (*callback)(*action);
         }
     }
 
     static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
         auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
         if (auto callback = impl->_cursor_pos_callback) {
-            (*callback)(xpos, ypos);
+            (*callback)(static_cast<float>(xpos), static_cast<float>(ypos));
         }
     }
 
@@ -178,8 +183,8 @@ void Window::set_cursor_pos_callback(CursorPosCallback callback) {
 }
 void Window::set_fb_size_callback(FbSizeCallback callback) { impl->_fb_size_callback = callback; }
 
-void Window::on_key(Key key, KeyAction action, KeyCallback callback) {
-    impl->key_callbacks.insert({{key, action}, callback});
+void Window::on_keydown(Key key, KeyCallback callback) {
+    impl->key_callbacks.insert({{key, KeyAction::Down}, callback});
 }
 
 bool Window::toggle_vsync() {

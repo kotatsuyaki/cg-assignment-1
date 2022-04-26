@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(proj VERSION 1.0)
 
 add_executable(proj
+    src/control.cpp
     src/main.cpp
     src/matrix.cpp
     src/model.cpp
