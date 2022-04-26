@@ -22,6 +22,14 @@
           rnix-lsp
           ninja
         ];
+        doc-deps = with pkgs; [
+          texlive.combined.scheme-full
+          pandoc
+          librsvg
+        ];
+        fonts-conf = pkgs.makeFontsConf {
+          fontDirectories = [ pkgs.source-han-serif ];
+        };
       in
       {
         defaultPackage = pkgs.stdenv.mkDerivation {
@@ -29,6 +37,17 @@
           name = "cg1";
           buildInputs = deps;
           cmakeFlags = [ "-DSYSTEM_GLFW=YES" ];
+        };
+        packages.docs = pkgs.stdenv.mkDerivation {
+          name = "main.pdf";
+          src = ./docs;
+          buildInputs = doc-deps;
+          buildPhase = "make";
+          installPhase = ''
+            mkdir -p $out
+            cp main.pdf $out
+          '';
+          FONTCONFIG_FILE = fonts-conf;
         };
         devShell = pkgs.mkShell {
           buildInputs = deps ++ dev-deps;
