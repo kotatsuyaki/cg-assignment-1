@@ -5,7 +5,7 @@ CMakeCache.txt
 cmake_install.cmake
 compile_commands.json
 proj
-Makefile
+/Makefile
 .cache/clangd/index
 result
 .ninja*
