@@ -1,5 +1,6 @@
 #include "model.hpp"
 
+#include <exception>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -14,12 +15,18 @@
 namespace {
 void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
                std::vector<GLfloat>& colors, tinyobj::shape_t* shape);
+enum class LoadStatus {
+    NotYet,
+    Loaded,
+    Failed,
+};
 } // namespace
 
 struct Model::Impl {
     std::string path;
 
-    mutable bool loaded;
+    mutable LoadStatus status;
+
     mutable GLuint vao;
     mutable GLuint vertices;
     mutable GLuint colors;
@@ -41,7 +48,7 @@ struct Model::Impl {
     void unload() const;
 };
 
-Model::Impl::Impl(std::string_view path) : path(path), loaded(false) {}
+Model::Impl::Impl(std::string_view path) : path(path), status(LoadStatus::NotYet) {}
 
 Model::Impl::~Impl() { unload(); }
 
@@ -49,17 +56,25 @@ Model::Model(std::string_view path) : impl(std::make_shared<Impl>(path)) {}
 
 void Model::draw() const { impl->draw(); }
 void Model::Impl::draw() const {
-    if (loaded == false) {
-        load();
-        loaded = true;
+    if (status == LoadStatus::NotYet) {
+        try {
+            load();
+            status = LoadStatus::Loaded;
+        } catch (const std::exception& e) {
+            std::cerr << "Exception during model load:\n" << e.what() << "\n";
+            status = LoadStatus::Failed;
+        }
     }
-    glBindVertexArray(vao);
-    // NOTE: We don't have boost::numeric_cast available.  This cast may overflow.
-    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count));
+
+    if (status == LoadStatus::Loaded) {
+        glBindVertexArray(vao);
+        // NOTE: We don't have boost::numeric_cast available.  This cast may overflow.
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count));
+    }
 }
 
 void Model::Impl::unload() const {
-    if (loaded) {
+    if (status == LoadStatus::Loaded) {
         glDeleteBuffers(1, &vertices);
         glDeleteBuffers(1, &colors);
         glDeleteVertexArrays(1, &vao);
@@ -78,11 +93,8 @@ void Model::Impl::load() const {
     bool res = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.data());
 
     if (res == false) {
-        throw std::runtime_error("Failed to load object file");
+        throw std::runtime_error(std::string("Failed to load object file:\n") + err + "\n" + warn);
     }
-
-    std::cout << "Load model success (shapes size = " << shapes.size()
-              << ", material size = " << materials.size() << ")\n";
 
     normalize(&attrib, vertices, colors, &shapes[0]);
 
@@ -103,6 +115,8 @@ void Model::Impl::load() const {
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+
+    std::cerr << "Loaded model from " << path << " successfully\n";
 }
 
 struct ModelList::Impl {
