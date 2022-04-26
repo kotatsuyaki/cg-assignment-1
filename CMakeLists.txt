@@ -12,7 +12,6 @@ add_executable(proj
     src/transform/mvp.cpp
     src/transform/projection.cpp
     src/transform/rotate.cpp
-    src/transform/rotation.cpp
     src/transform/scale.cpp
     src/transform/translate.cpp
     src/transform/viewer.cpp
