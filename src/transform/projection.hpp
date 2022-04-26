@@ -19,6 +19,10 @@ class Projection final : public Transform {
     // Updates the projection mode.
     void set_mode(Mode mode);
 
+    // Allow move
+    Projection(Projection&&);
+    Projection& operator=(Projection&&);
+
   private:
     class Impl;
     std::unique_ptr<Impl> impl;

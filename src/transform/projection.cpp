@@ -99,6 +99,9 @@ void Projection::Impl::set_mode(Mode mode) {
     cached = std::nullopt;
 }
 
+Projection::Projection(Projection&&) = default;
+Projection& Projection::operator=(Projection&&) = default;
+
 struct ProjectionBuilder::Impl {
     std::optional<float> near_clip;
     std::optional<float> far_clip;
