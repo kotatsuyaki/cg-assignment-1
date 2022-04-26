@@ -50,8 +50,8 @@ struct Vector2 {
     bool operator==(const Vector2& rhs) const;   // exact compare, no epsilon
     bool operator!=(const Vector2& rhs) const;   // exact compare, no epsilon
     bool operator<(const Vector2& rhs) const;    // comparison for sort
-    float operator[](int index) const;           // subscript operator v[0], v[1]
-    float& operator[](int index);                // subscript operator v[0], v[1]
+    float operator[](size_t index) const;        // subscript operator v[0], v[1]
+    float& operator[](size_t index);             // subscript operator v[0], v[1]
 
     friend Vector2 operator*(const float a, const Vector2 vec);
     friend std::ostream& operator<<(std::ostream& os, const Vector2& vec);
@@ -93,8 +93,8 @@ struct Vector3 {
     bool operator==(const Vector3& rhs) const;   // exact compare, no epsilon
     bool operator!=(const Vector3& rhs) const;   // exact compare, no epsilon
     bool operator<(const Vector3& rhs) const;    // comparison for sort
-    float operator[](int index) const;           // subscript operator v[0], v[1]
-    float& operator[](int index);                // subscript operator v[0], v[1]
+    float operator[](size_t index) const;        // subscript operator v[0], v[1]
+    float& operator[](size_t index);             // subscript operator v[0], v[1]
 
     friend Vector3 operator*(const float a, const Vector3 vec);
     friend std::ostream& operator<<(std::ostream& os, const Vector3& vec);
@@ -136,8 +136,8 @@ struct Vector4 {
     bool operator==(const Vector4& rhs) const;   // exact compare, no epsilon
     bool operator!=(const Vector4& rhs) const;   // exact compare, no epsilon
     bool operator<(const Vector4& rhs) const;    // comparison for sort
-    float operator[](int index) const;           // subscript operator v[0], v[1]
-    float& operator[](int index);                // subscript operator v[0], v[1]
+    float operator[](size_t index) const;        // subscript operator v[0], v[1]
+    float& operator[](size_t index);             // subscript operator v[0], v[1]
 
     friend Vector4 operator*(const float a, const Vector4 vec);
     friend std::ostream& operator<<(std::ostream& os, const Vector4& vec);
@@ -146,7 +146,7 @@ struct Vector4 {
 // fast math routines from Doom3 SDK
 inline float inv_sqrt(float x) {
     float xhalf = 0.5f * x;
-    int i = *(int*)&x;              // get bits for floating value
+    size_t i = *(size_t*)&x;        // get bits for floating value
     i = 0x5f3759df - (i >> 1);      // gives initial guess
     x = *(float*)&i;                // convert bits back to float
     x = x * (1.5f - xhalf * x * x); // Newton step
@@ -220,9 +220,9 @@ inline bool Vector2::operator<(const Vector2& rhs) const {
     return false;
 }
 
-inline float Vector2::operator[](int index) const { return (&x)[index]; }
+inline float Vector2::operator[](size_t index) const { return (&x)[index]; }
 
-inline float& Vector2::operator[](int index) { return (&x)[index]; }
+inline float& Vector2::operator[](size_t index) { return (&x)[index]; }
 
 inline void Vector2::set(float x, float y) {
     this->x = x;
@@ -342,9 +342,9 @@ inline bool Vector3::operator<(const Vector3& rhs) const {
     return false;
 }
 
-inline float Vector3::operator[](int index) const { return (&x)[index]; }
+inline float Vector3::operator[](size_t index) const { return (&x)[index]; }
 
-inline float& Vector3::operator[](int index) { return (&x)[index]; }
+inline float& Vector3::operator[](size_t index) { return (&x)[index]; }
 
 inline void Vector3::set(float x, float y, float z) {
     this->x = x;
@@ -485,9 +485,9 @@ inline bool Vector4::operator<(const Vector4& rhs) const {
     return false;
 }
 
-inline float Vector4::operator[](int index) const { return (&x)[index]; }
+inline float Vector4::operator[](size_t index) const { return (&x)[index]; }
 
-inline float& Vector4::operator[](int index) { return (&x)[index]; }
+inline float& Vector4::operator[](size_t index) { return (&x)[index]; }
 
 inline void Vector4::set(float x, float y, float z, float w) {
     this->x = x;

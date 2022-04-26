@@ -35,10 +35,10 @@ class Matrix2 {
 
     void set(const float src[4]);
     void set(float xx, float xy, float yx, float yy);
-    void set_row(int index, const float row[2]);
-    void set_row(int index, const Vector2& v);
-    void set_column(int index, const float col[2]);
-    void set_column(int index, const Vector2& v);
+    void set_row(size_t index, const float row[2]);
+    void set_row(size_t index, const Vector2& v);
+    void set_column(size_t index, const float col[2]);
+    void set_column(size_t index, const Vector2& v);
 
     const float* data() const;
     float get_determinant();
@@ -57,8 +57,8 @@ class Matrix2 {
     Matrix2& operator*=(const Matrix2& rhs);     // multiplication: M1' = M1 * M2
     bool operator==(const Matrix2& rhs) const;   // exact compare, no epsilon
     bool operator!=(const Matrix2& rhs) const;   // exact compare, no epsilon
-    float operator[](int index) const;           // subscript operator v[0], v[1]
-    float& operator[](int index);                // subscript operator v[0], v[1]
+    float operator[](size_t index) const;        // subscript operator v[0], v[1]
+    float& operator[](size_t index);             // subscript operator v[0], v[1]
 
     friend Matrix2 operator-(const Matrix2& m); // unary operator (-)
     friend Matrix2 operator*(float scalar,
@@ -86,10 +86,10 @@ class Matrix3 {
     void set(const float src[9]);
     void set(float xx, float xy, float xz, float yx, float yy, float yz, float zx, float zy,
              float zz);
-    void set_row(int index, const float row[3]);
-    void set_row(int index, const Vector3& v);
-    void set_column(int index, const float col[3]);
-    void set_column(int index, const Vector3& v);
+    void set_row(size_t index, const float row[3]);
+    void set_row(size_t index, const Vector3& v);
+    void set_column(size_t index, const float col[3]);
+    void set_column(size_t index, const Vector3& v);
 
     const float* data() const;
     float get_determinant();
@@ -108,8 +108,8 @@ class Matrix3 {
     Matrix3& operator*=(const Matrix3& rhs);     // multiplication: M1' = M1 * M2
     bool operator==(const Matrix3& rhs) const;   // exact compare, no epsilon
     bool operator!=(const Matrix3& rhs) const;   // exact compare, no epsilon
-    float operator[](int index) const;           // subscript operator v[0], v[1]
-    float& operator[](int index);                // subscript operator v[0], v[1]
+    float operator[](size_t index) const;        // subscript operator v[0], v[1]
+    float& operator[](size_t index);             // subscript operator v[0], v[1]
 
     friend Matrix3 operator-(const Matrix3& m); // unary operator (-)
     friend Matrix3 operator*(float scalar,
@@ -137,12 +137,12 @@ class Matrix4 {
     void set(const float src[16]);
     void set(float xx, float xy, float xz, float xw, float yx, float yy, float yz, float yw,
              float zx, float zy, float zz, float zw, float wx, float wy, float wz, float ww);
-    void set_row(int index, const float row[4]);
-    void set_row(int index, const Vector4& v);
-    void set_row(int index, const Vector3& v);
-    void set_column(int index, const float col[4]);
-    void set_column(int index, const Vector4& v);
-    void set_column(int index, const Vector3& v);
+    void set_row(size_t index, const float row[4]);
+    void set_row(size_t index, const Vector4& v);
+    void set_row(size_t index, const Vector3& v);
+    void set_column(size_t index, const float col[4]);
+    void set_column(size_t index, const Vector4& v);
+    void set_column(size_t index, const Vector3& v);
 
     const float* data() const;
     float get_determinant();
@@ -179,8 +179,8 @@ class Matrix4 {
     Matrix4& operator*=(const Matrix4& rhs);     // multiplication: M1' = M1 * M2
     bool operator==(const Matrix4& rhs) const;   // exact compare, no epsilon
     bool operator!=(const Matrix4& rhs) const;   // exact compare, no epsilon
-    float operator[](int index) const;           // subscript operator v[0], v[1]
-    float& operator[](int index);                // subscript operator v[0], v[1]
+    float operator[](size_t index) const;        // subscript operator v[0], v[1]
+    float& operator[](size_t index);             // subscript operator v[0], v[1]
 
     friend Matrix4 operator-(const Matrix4& m); // unary operator (-)
     friend Matrix4 operator*(float scalar,

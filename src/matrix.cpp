@@ -548,22 +548,22 @@ void Matrix2::set(float xx, float xy, float yx, float yy) {
     m[3] = yy;
 }
 
-void Matrix2::set_row(int index, const float row[2]) {
+void Matrix2::set_row(size_t index, const float row[2]) {
     m[index * 2] = row[0];
     m[index * 2 + 1] = row[1];
 }
 
-void Matrix2::set_row(int index, const Vector2& v) {
+void Matrix2::set_row(size_t index, const Vector2& v) {
     m[index * 2] = v.x;
     m[index * 2 + 1] = v.y;
 }
 
-void Matrix2::set_column(int index, const float col[2]) {
+void Matrix2::set_column(size_t index, const float col[2]) {
     m[index] = col[0];
     m[index + 2] = col[1];
 }
 
-void Matrix2::set_column(int index, const Vector2& v) {
+void Matrix2::set_column(size_t index, const Vector2& v) {
     m[index] = v.x;
     m[index + 2] = v.y;
 }
@@ -622,9 +622,9 @@ bool Matrix2::operator!=(const Matrix2& rhs) const {
     return (m[0] != rhs[0]) || (m[1] != rhs[1]) || (m[2] != rhs[2]) || (m[3] != rhs[3]);
 }
 
-float Matrix2::operator[](int index) const { return m[index]; }
+float Matrix2::operator[](size_t index) const { return m[index]; }
 
-float& Matrix2::operator[](int index) { return m[index]; }
+float& Matrix2::operator[](size_t index) { return m[index]; }
 
 Matrix2 operator-(const Matrix2& rhs) { return Matrix2(-rhs[0], -rhs[1], -rhs[2], -rhs[3]); }
 
@@ -694,25 +694,25 @@ void Matrix3::set(float xx, float xy, float xz, float yx, float yy, float yz, fl
     m[8] = zz;
 }
 
-void Matrix3::set_row(int index, const float row[3]) {
+void Matrix3::set_row(size_t index, const float row[3]) {
     m[index * 3] = row[0];
     m[index * 3 + 1] = row[1];
     m[index * 3 + 2] = row[2];
 }
 
-void Matrix3::set_row(int index, const Vector3& v) {
+void Matrix3::set_row(size_t index, const Vector3& v) {
     m[index * 3] = v.x;
     m[index * 3 + 1] = v.y;
     m[index * 3 + 2] = v.z;
 }
 
-void Matrix3::set_column(int index, const float col[3]) {
+void Matrix3::set_column(size_t index, const float col[3]) {
     m[index] = col[0];
     m[index + 3] = col[1];
     m[index + 6] = col[2];
 }
 
-void Matrix3::set_column(int index, const Vector3& v) {
+void Matrix3::set_column(size_t index, const Vector3& v) {
     m[index] = v.x;
     m[index + 3] = v.y;
     m[index + 6] = v.z;
@@ -797,9 +797,9 @@ bool Matrix3::operator!=(const Matrix3& rhs) const {
            (m[8] != rhs[8]);
 }
 
-float Matrix3::operator[](int index) const { return m[index]; }
+float Matrix3::operator[](size_t index) const { return m[index]; }
 
-float& Matrix3::operator[](int index) { return m[index]; }
+float& Matrix3::operator[](size_t index) { return m[index]; }
 
 Matrix3 operator-(const Matrix3& rhs) {
     return Matrix3(-rhs[0], -rhs[1], -rhs[2], -rhs[3], -rhs[4], -rhs[5], -rhs[6], -rhs[7], -rhs[8]);
@@ -883,41 +883,41 @@ void Matrix4::set(float xx, float xy, float xz, float xw, float yx, float yy, fl
     m[15] = ww;
 }
 
-void Matrix4::set_row(int index, const float row[4]) {
+void Matrix4::set_row(size_t index, const float row[4]) {
     m[index * 4] = row[0];
     m[index * 4 + 1] = row[1];
     m[index * 4 + 2] = row[2];
     m[index * 4 + 3] = row[3];
 }
 
-void Matrix4::set_row(int index, const Vector4& v) {
+void Matrix4::set_row(size_t index, const Vector4& v) {
     m[index * 4] = v.x;
     m[index * 4 + 1] = v.y;
     m[index * 4 + 2] = v.z;
     m[index * 4 + 3] = v.w;
 }
 
-void Matrix4::set_row(int index, const Vector3& v) {
+void Matrix4::set_row(size_t index, const Vector3& v) {
     m[index * 4] = v.x;
     m[index * 4 + 1] = v.y;
     m[index * 4 + 2] = v.z;
 }
 
-void Matrix4::set_column(int index, const float col[4]) {
+void Matrix4::set_column(size_t index, const float col[4]) {
     m[index] = col[0];
     m[index + 4] = col[1];
     m[index + 8] = col[2];
     m[index + 12] = col[3];
 }
 
-void Matrix4::set_column(int index, const Vector4& v) {
+void Matrix4::set_column(size_t index, const Vector4& v) {
     m[index] = v.x;
     m[index + 4] = v.y;
     m[index + 8] = v.z;
     m[index + 12] = v.w;
 }
 
-void Matrix4::set_column(int index, const Vector3& v) {
+void Matrix4::set_column(size_t index, const Vector3& v) {
     m[index] = v.x;
     m[index + 4] = v.y;
     m[index + 8] = v.z;
@@ -1036,9 +1036,9 @@ bool Matrix4::operator!=(const Matrix4& n) const {
            (m[14] != n[14]) || (m[15] != n[15]);
 }
 
-float Matrix4::operator[](int index) const { return m[index]; }
+float Matrix4::operator[](size_t index) const { return m[index]; }
 
-float& Matrix4::operator[](int index) { return m[index]; }
+float& Matrix4::operator[](size_t index) { return m[index]; }
 
 Matrix4 operator-(const Matrix4& rhs) {
     return Matrix4(-rhs[0], -rhs[1], -rhs[2], -rhs[3], -rhs[4], -rhs[5], -rhs[6], -rhs[7], -rhs[8],
