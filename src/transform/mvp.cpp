@@ -15,6 +15,9 @@ class Mvp::Impl {
     Impl(int width, int height);
 
     Matrix4 matrix() const;
+    Matrix4 model_matrix() const;
+    Matrix4 view_project_matrix() const;
+
     void set_viewport_size(int width, int height);
     void set_project_mode(Projection::Mode mode);
     void debug_print() const;
@@ -32,6 +35,11 @@ class Mvp::Impl {
     Scale scale;
 
     mutable std::optional<Matrix4> cached;
+    mutable std::optional<Matrix4> cached_vp;
+    mutable std::optional<Matrix4> cached_trs;
+
+    void inval_vp();
+    void inval_trs();
 };
 
 Mvp::Impl::Impl(int width, int height)
@@ -46,20 +54,21 @@ Mvp::Impl::Impl(int width, int height)
                .with_aspect(static_cast<float>(width) / static_cast<float>(height))
                .build()),
       viewer({0.0, 0.0, 2.0}, {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}), trans({0, 0, 0}),
-      rotate({0, 0, 0}), scale({1, 1, 1}), cached(std::nullopt) {}
+      rotate({0, 0, 0}), scale({1, 1, 1}), cached(std::nullopt), cached_vp(std::nullopt),
+      cached_trs(std::nullopt) {}
 
 Mvp::Mvp(int width, int height) : impl(std::make_unique<Impl>(width, height)) {}
 Mvp::~Mvp() = default;
 
 void Mvp::Impl::set_viewport_size(int width, int height) {
     proj.set_aspect(static_cast<float>(width) / height);
-    cached = std::nullopt;
+    inval_vp();
 }
 void Mvp::set_viewport_size(int width, int height) { impl->set_viewport_size(width, height); }
 
 void Mvp::Impl::set_project_mode(Projection::Mode mode) {
     proj.set_mode(mode);
-    cached = std::nullopt;
+    inval_vp();
 }
 void Mvp::set_project_mode(ProjectMode mode) {
     Projection::Mode pmode;
@@ -86,26 +95,44 @@ void Mvp::Impl::debug_print() const {
 void Mvp::update_translation(Vector3 delta) { impl->update_translation(delta); }
 void Mvp::Impl::update_translation(Vector3 delta) {
     trans.change(delta);
-    cached = std::nullopt;
+    inval_trs();
 }
 
 void Mvp::update_rotation(Vector3 delta) { impl->update_rotation(delta); }
 void Mvp::Impl::update_rotation(Vector3 delta) {
     rotate.change(delta);
-    cached = std::nullopt;
+    inval_trs();
 }
 
 void Mvp::update_scaling(Vector3 delta) { impl->update_scaling(delta); }
 void Mvp::Impl::update_scaling(Vector3 delta) {
     rotate.change(delta);
-    cached = std::nullopt;
+    inval_trs();
 }
 
+Matrix4 Mvp::matrix() const { return impl->matrix(); }
 Matrix4 Mvp::Impl::matrix() const {
     if (cached.has_value() == false) {
-        cached =
-            proj.matrix() * viewer.matrix() * trans.matrix() * rotate.matrix() * scale.matrix();
+        cached = view_project_matrix() * model_matrix();
     }
     return *cached;
 }
-Matrix4 Mvp::matrix() const { return impl->matrix(); }
+
+Matrix4 Mvp::model_matrix() const { return impl->model_matrix(); }
+Matrix4 Mvp::Impl::model_matrix() const {
+    if (cached_trs.has_value() == false) {
+        cached = trans.matrix() * rotate.matrix() * scale.matrix();
+    }
+    return *cached;
+}
+
+Matrix4 Mvp::view_project_matrix() const { return impl->view_project_matrix(); }
+Matrix4 Mvp::Impl::view_project_matrix() const {
+    if (cached_vp.has_value() == false) {
+        cached = proj.matrix() * viewer.matrix();
+    }
+    return *cached;
+}
+
+void Mvp::Impl::inval_vp() { cached = cached_vp = std::nullopt; }
+void Mvp::Impl::inval_trs() { cached = cached_trs = std::nullopt; }

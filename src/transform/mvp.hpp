@@ -6,11 +6,13 @@
 #include "transform.hpp"
 
 // Wrapper for MVP transformation.
-class Mvp : public Transform {
+class Mvp : public StagedTransform {
   public:
     explicit Mvp(int width, int height);
     ~Mvp();
     virtual Matrix4 matrix() const override;
+    virtual Matrix4 model_matrix() const override;
+    virtual Matrix4 view_project_matrix() const override;
 
     Mvp(const Mvp&) = delete;
     Mvp& operator=(const Mvp&) = delete;

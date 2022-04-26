@@ -20,12 +20,12 @@ class Scene final {
     Scene(Scene&&) = default;
     Scene& operator=(Scene&&) = default;
 
-    void render(const Window& window, const Transform& transform);
+    void render(const Window& window, StagedTransform& transform);
 
     void switch_render_mode();
 
   private:
-    struct Impl;
+    class Impl;
     std::unique_ptr<Impl> impl;
 };
 

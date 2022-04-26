@@ -10,4 +10,11 @@ class Transform {
     virtual ~Transform() = default;
 };
 
+// Abstract class for multi-stage transforms.
+class StagedTransform : public Transform {
+  public:
+    virtual Matrix4 model_matrix() const = 0;
+    virtual Matrix4 view_project_matrix() const = 0;
+};
+
 #endif
