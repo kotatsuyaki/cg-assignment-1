@@ -61,7 +61,7 @@ All key mappings specified in the assignment spec are implemented.
 
 # Build from Source
 
-This project is tested on GitHub Actions to ensure that they build successfully on all major platforms.
+This project is tested on GitHub Actions to ensure that it builds successfully on all major platforms.
 Below subsections list out build instructions for Linux, Windows, and macOS.
 For detailed commands used on GitHub Actions, see `.github/workflows/build.yml`.
 
