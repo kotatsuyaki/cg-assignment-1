@@ -60,10 +60,10 @@ class Window final {
     // Sets callbacks.
     // Must not be called while `loop` is running.
     void on_keydown(Key key, KeyCallback callback);
-    void set_scroll_callback(ScrollCallback callback);
-    void set_mouse_button_callback(MouseButtonCallback callback);
-    void set_cursor_pos_callback(CursorPosCallback callback);
-    void set_fb_size_callback(FbSizeCallback callback);
+    void on_scroll(ScrollCallback callback);
+    void on_mouse(MouseButtonCallback callback);
+    void on_cursor_move(CursorPosCallback callback);
+    void on_size_change(FbSizeCallback callback);
 
     // Toggles vsync on / off.
     // Vsync defaults to on.

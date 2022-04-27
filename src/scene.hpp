@@ -20,8 +20,10 @@ class Scene final {
     Scene(Scene&&) = default;
     Scene& operator=(Scene&&) = default;
 
+    // Renders the scene with specified transforms
     void render(const Window& window, StagedTransform& transform);
 
+    // Switches between wireframe and solid rendering.
     void switch_render_mode();
 
   private:

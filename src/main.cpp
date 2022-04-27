@@ -42,8 +42,7 @@ void init() {
     ModelList models{model_paths};
 
     // Setup scene
-    std::unique_ptr<Drawable> models_cloned = std::make_unique<ModelList>(models);
-    Scene scene{std::move(shader), {0.2f, 0.2f, 0.2f}, std::move(models_cloned)};
+    Scene scene{std::move(shader), {0.2f, 0.2f, 0.2f}, std::make_unique<ModelList>(models)};
 
     // Setup transformation and control objects
     Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
@@ -70,23 +69,21 @@ void init() {
     });
 
     // Setup mouse callbacks
-    window.set_scroll_callback([&](float xoffset, float yoffset) {
+    window.on_scroll([&](float xoffset, float yoffset) {
         control.update_offset({0, 0, -yoffset});
     });
 
-    window.set_mouse_button_callback(
-        [&](KeyAction action) { control.set_pressed(action == KeyAction::Down); });
+    window.on_mouse([&](KeyAction action) { control.set_pressed(action == KeyAction::Down); });
 
     std::optional<std::pair<float, float>> last_cursor_pos;
-    window.set_cursor_pos_callback([&](float xpos, float ypos) {
-        auto [last_xpos, last_ypos] = last_cursor_pos.value_or(std::make_pair(xpos, ypos));
+    window.on_cursor_move([&](float xpos, float ypos) {
+        const auto [last_xpos, last_ypos] = last_cursor_pos.value_or(std::make_pair(xpos, ypos));
         // Offset along y-axis is negated, since glfw reports larger number when cursur is lower
         control.update_offset({xpos - last_xpos, last_ypos - ypos, 0});
         last_cursor_pos = {xpos, ypos};
     });
 
-    window.set_fb_size_callback(
-        [&](int width, int height) { mvp.set_viewport_size(width, height); });
+    window.on_size_change([&](int width, int height) { mvp.set_viewport_size(width, height); });
 
     // Run the main loop
     window.loop([&]() {

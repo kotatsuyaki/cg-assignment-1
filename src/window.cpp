@@ -174,14 +174,10 @@ void Window::make_current() const {
     glfwMakeContextCurrent(window);
 }
 
-void Window::set_scroll_callback(ScrollCallback callback) { impl->_scroll_callback = callback; }
-void Window::set_mouse_button_callback(MouseButtonCallback callback) {
-    impl->_mouse_button_callback = callback;
-}
-void Window::set_cursor_pos_callback(CursorPosCallback callback) {
-    impl->_cursor_pos_callback = callback;
-}
-void Window::set_fb_size_callback(FbSizeCallback callback) { impl->_fb_size_callback = callback; }
+void Window::on_scroll(ScrollCallback callback) { impl->_scroll_callback = callback; }
+void Window::on_mouse(MouseButtonCallback callback) { impl->_mouse_button_callback = callback; }
+void Window::on_cursor_move(CursorPosCallback callback) { impl->_cursor_pos_callback = callback; }
+void Window::on_size_change(FbSizeCallback callback) { impl->_fb_size_callback = callback; }
 
 void Window::on_keydown(Key key, KeyCallback callback) {
     impl->key_callbacks.insert({{key, KeyAction::Down}, callback});
