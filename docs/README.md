@@ -89,12 +89,12 @@ The binary is in `./result/bin/proj`.
 
 # Screenshots
 
-![The rabbit model in default setup](./screenshots/rabbit-default.png){ width=50% }
+![The rabbit model in default setup](./screenshots/rabbit-default.png)
 
-![The rabbit model viewed from a moved camera](./screenshots/rabbit-moved-camera.png){ width=50% }
+![The rabbit model viewed from a moved camera](./screenshots/rabbit-moved-camera.png)
 
-![The man-with-hat model, scaled, rotated, and translated](./screenshots/man-in-water.png){ width=50% }
+![The man-with-hat model, scaled, rotated, and translated](./screenshots/man-in-water.png)
 
-![The model file folder picker](./screenshots/folder-picker.png){ width=50% }
+![The model file folder picker](./screenshots/folder-picker.png)
 
-![Orthogonal projection, demoed with the cube model](./screenshots/rgb-cuboid-ortho.png){ width=50% }
+![Orthogonal projection, demoed with the cube model](./screenshots/rgb-cuboid-ortho.png)
