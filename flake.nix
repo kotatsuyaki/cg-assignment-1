@@ -50,7 +50,7 @@
           FONTCONFIG_FILE = fonts-conf;
         };
         devShell = pkgs.mkShell {
-          buildInputs = deps ++ dev-deps;
+          buildInputs = deps ++ dev-deps ++ doc-deps;
           CMAKE_EXPORT_COMPILE_COMMANDS = "yes";
         };
       });
