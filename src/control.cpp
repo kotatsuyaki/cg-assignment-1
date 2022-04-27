@@ -1,8 +1,17 @@
 #include "control.hpp"
 
 namespace {
+// Used to slow down mouse operations.
 const Vector3 DIRECTION_SCALES{0.01f, 0.01f, 0.01f};
-const float ROTATION_SCALE = 5.0;
+
+// These constants makes the directions of mouse operations the same as the example binary.
+// (and yes, they're non-intuitive)
+const Vector3 TRANSLATE_SCALES{1.0f, 1.0f, -1.0f};
+const Vector3 ROTATION_SCALES{-5.0f, 5.0f, -5.0f};
+const Vector3 SCALING_SCALES{-1.0f, 1.0f, -1.0f};
+const Vector3 EYEPOS_SCALES{-1.0f, -1.0f, 1.0f};
+const Vector3 CENTER_SCALES{-1.0f, 1.0f, 1.0f};
+const Vector3 UP_SCALES{-1.0f, -1.0f, 1.0f};
 } // namespace
 
 class MvpControl::Impl {
@@ -32,26 +41,31 @@ void MvpControl::Impl::update(Mvp& mvp) {
     accumulated *= DIRECTION_SCALES;
 
     switch (mode) {
-    case Mode::TranslateModel:
+    case Mode::TranslateModel: {
+        accumulated *= TRANSLATE_SCALES;
         mvp.update_translation(accumulated);
-        break;
-    case Mode::ScaleModel:
+    } break;
+    case Mode::ScaleModel: {
+        accumulated *= SCALING_SCALES;
         mvp.update_scaling(accumulated);
-        break;
+    } break;
     case Mode::RotateModel: {
-        const auto [x, y, z] = accumulated * ROTATION_SCALE;
+        const auto [x, y, z] = accumulated * ROTATION_SCALES;
+        // x and y are swapped intentionally
         mvp.update_rotation({y, x, z});
-        break;
-    }
-    case Mode::TranslateEyePos:
+    } break;
+    case Mode::TranslateEyePos: {
+        accumulated *= EYEPOS_SCALES;
         mvp.update_eyepos(accumulated);
-        break;
-    case Mode::TranslateViewCenter:
+    } break;
+    case Mode::TranslateViewCenter: {
+        accumulated *= CENTER_SCALES;
         mvp.update_center(accumulated);
-        break;
-    case Mode::TranslateViewUp:
+    } break;
+    case Mode::TranslateViewUp: {
+        accumulated *= UP_SCALES;
         mvp.update_up(accumulated);
-        break;
+    } break;
     }
 
     accumulated = Vector3{0, 0, 0};

@@ -5,6 +5,7 @@
 
 #include "transform/mvp.hpp"
 
+// Class making changes to instances of Mvp.
 class MvpControl {
   public:
     enum class Mode {
