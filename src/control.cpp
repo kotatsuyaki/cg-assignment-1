@@ -7,7 +7,7 @@ const Vector3 DIRECTION_SCALES{0.01f, 0.01f, 0.01f};
 // These constants makes the directions of mouse operations the same as the example binary.
 // (and yes, they're non-intuitive)
 const Vector3 TRANSLATE_SCALES{1.0f, 1.0f, -1.0f};
-const Vector3 ROTATION_SCALES{-5.0f, 5.0f, -5.0f};
+const Vector3 ROTATION_SCALES{-10.0f, 10.0f, -10.0f};
 const Vector3 SCALING_SCALES{-1.0f, 1.0f, -1.0f};
 const Vector3 EYEPOS_SCALES{-1.0f, -1.0f, 1.0f};
 const Vector3 CENTER_SCALES{-1.0f, 1.0f, 1.0f};
