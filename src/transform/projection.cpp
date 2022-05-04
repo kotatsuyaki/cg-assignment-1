@@ -34,6 +34,12 @@ class Projection::Impl {
     mutable std::optional<Matrix4> cached;
     Matrix4 matrix_orthogonal() const;
     Matrix4 matrix_perspective() const;
+
+    // Computes horizontal scaling factor from `aspect`
+    float x_scale_factor() const;
+
+    // Computes vertical scaling factor from `aspect`
+    float y_scale_factor() const;
 };
 
 Projection::Projection(float near_clip, float far_clip, float fovy, float aspect, float left,
@@ -61,8 +67,8 @@ Matrix4 Projection::Impl::matrix() const {
 Matrix4 Projection::Impl::matrix_perspective() const {
     const float tan_term = std::tan(deg2rad(fovy) * 0.5f);
 
-    const float x_scale = 1.0f / (tan_term * aspect);
-    const float y_scale = 1.0f / tan_term;
+    const float x_scale = 1.0f / tan_term * x_scale_factor();
+    const float y_scale = 1.0f / tan_term * y_scale_factor();
     const float z_scale_a = (near_clip + far_clip) / (near_clip - far_clip);
     const float z_scale_b = 2 * near_clip * far_clip / (near_clip - far_clip);
 
@@ -72,9 +78,25 @@ Matrix4 Projection::Impl::matrix_perspective() const {
                    0,       0,       -1,        0};
 }
 
+float Projection::Impl::x_scale_factor() const {
+    if (aspect >= 1.0f) {
+        return 1.0f / aspect;
+    } else {
+        return 1.0f;
+    }
+}
+
+float Projection::Impl::y_scale_factor() const {
+    if (aspect >= 1.0f) {
+        return 1.0f;
+    } else {
+        return 1.0f * aspect;
+    }
+}
+
 Matrix4 Projection::Impl::matrix_orthogonal() const {
-    const float x_scale = 2.0f / ((right - left) * aspect);
-    const float y_scale = 2.0f / (top - bottom);
+    const float x_scale = 2.0f / (right - left) * x_scale_factor();
+    const float y_scale = 2.0f / (top - bottom) * y_scale_factor();
     const float z_scale = 2.0f / (near_clip - far_clip);
 
     const float x_trans = -1.0f * (right + left) / (right - left);
