@@ -78,10 +78,13 @@ void Scene::Impl::render(const Window& window, StagedTransform& transform) {
     glEnable(GL_DEPTH_TEST);
     glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glPolygonMode(GL_FRONT_AND_BACK, mode.mode());
 
-    // Draw model and floor
+    // Draw model with user-specified mode
+    glPolygonMode(GL_FRONT_AND_BACK, mode.mode());
     draw_model(transform);
+
+    // Always draw floor with filled mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     draw_floor(transform);
 }
 
