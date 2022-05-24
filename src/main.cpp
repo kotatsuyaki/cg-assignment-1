@@ -42,7 +42,7 @@ void init() {
     ModelList models{model_paths};
 
     // Setup scene
-    Scene scene{std::move(shader), {0.2f, 0.2f, 0.2f}, std::make_unique<ModelList>(models)};
+    Scene scene{std::move(shader), std::make_unique<ModelList>(models)};
 
     // Setup transformation and control objects
     Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
@@ -83,11 +83,16 @@ void init() {
         last_cursor_pos = {xpos, ypos};
     });
 
-    window.on_size_change([&](int width, int height) { mvp.set_viewport_size(width, height); });
+    window.on_size_change([&](int width, int height) { mvp.set_viewport_size(width / 2, height); });
 
     // Run the main loop
-    window.loop([&]() {
-        control.update(mvp);
-        scene.render(window, mvp);
-    });
+    window.loop(
+        [&]() {
+            control.update(mvp);
+            scene.render(window, mvp);
+        },
+        [&]() {
+            control.update(mvp);
+            scene.render(window, mvp);
+        });
 }

@@ -52,7 +52,7 @@ class Window final {
     Window& operator=(Window&&) = default;
 
     // Runs the main loop until the close flag of the window is set.
-    void loop(std::function<void()> body) const;
+    void loop(std::function<void()> left_body, std::function<void()> right_body) const;
 
     // Makes the context of this window the current context
     void make_current() const;

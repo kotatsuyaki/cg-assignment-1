@@ -1,4 +1,5 @@
 #include "window.hpp"
+#include "vector.hpp"
 
 #include <glad/glad.h>
 
@@ -28,6 +29,8 @@ struct GlfwWindowDeleter {
     void operator()(GLFWwindow* ptr) { glfwDestroyWindow(ptr); }
 };
 
+constexpr Vector3 CLEAR_COLOR{0.2f, 0.2f, 0.2f};
+
 // Hasher for std::pair<_, _>
 struct PairHash {
     template <class T, class U> size_t operator()(const std::pair<T, U>& p) const {
@@ -51,7 +54,8 @@ std::optional<KeyAction> int_to_action(int raw);
 } // namespace
 
 struct Window::Impl {
-    Impl(GLFWwindow* window) : window(window), key_callbacks(), vsync(true) {
+    Impl(GLFWwindow* window, int width, int height)
+        : window(window), key_callbacks(), vsync(true), width(width), height(height) {
         glfwSetWindowUserPointer(window, this);
         glfwSetKeyCallback(window, key_callback);
         glfwSetScrollCallback(window, scroll_callback);
@@ -104,8 +108,9 @@ struct Window::Impl {
     }
 
     static void fb_size_callback(GLFWwindow* window, int width, int height) {
-        glViewport(0, 0, width, height);
         auto impl = static_cast<Window::Impl*>(glfwGetWindowUserPointer(window));
+        impl->width = width;
+        impl->height = height;
         if (auto callback = impl->_fb_size_callback) {
             (*callback)(width, height);
         }
@@ -120,6 +125,9 @@ struct Window::Impl {
     std::optional<FbSizeCallback> _fb_size_callback;
 
     std::unordered_map<std::pair<Key, KeyAction>, KeyCallback, PairHash> key_callbacks;
+
+    int width;
+    int height;
 
     bool vsync;
 };
@@ -150,7 +158,7 @@ Window::Window(const Glfw& glfw, std::string title, int width, int height) {
         throw std::runtime_error("Failed to initialize GLAD");
     }
 
-    this->impl = std::make_unique<Window::Impl>(window);
+    this->impl = std::make_unique<Window::Impl>(window, width, height);
 }
 
 Window::~Window() {}
@@ -158,12 +166,22 @@ Window::~Window() {}
 const int Window::DEFAULT_WIDTH = 800;
 const int Window::DEFAULT_HEIGHT = 600;
 
-void Window::loop(std::function<void()> body) const {
+void Window::loop(std::function<void()> left_body, std::function<void()> right_body) const {
     auto window = impl->window.get();
     glfwMakeContextCurrent(window);
 
     while (glfwWindowShouldClose(window) == GLFW_FALSE) {
-        body();
+        // clear canvas
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(CLEAR_COLOR.x, CLEAR_COLOR.y, CLEAR_COLOR.z, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        glViewport(0, 0, impl->width / 2, impl->height);
+        left_body();
+
+        glViewport(impl->width / 2, 0, impl->width / 2, impl->height);
+        right_body();
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

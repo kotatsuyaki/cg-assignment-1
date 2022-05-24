@@ -31,9 +31,9 @@ class Quad : public Drawable {
 
 class Scene::Impl {
   public:
-    Impl(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable)
-        : shader(std::move(shader)), clear_color(clear_color), drawable(std::move(drawable)),
-          mode(RenderMode::Solid), quad() {}
+    Impl(Shader shader, std::unique_ptr<Drawable> drawable)
+        : shader(std::move(shader)), drawable(std::move(drawable)), mode(RenderMode::Solid),
+          quad() {}
 
     class RenderMode {
       public:
@@ -55,7 +55,6 @@ class Scene::Impl {
 
   private:
     Shader shader;
-    Vector3 clear_color;
     RenderMode mode;
     std::unique_ptr<Drawable> drawable;
     Quad quad;
@@ -64,8 +63,8 @@ class Scene::Impl {
     void draw_floor(const StagedTransform& transform);
 };
 
-Scene::Scene(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable)
-    : impl(std::make_unique<Impl>(std::move(shader), clear_color, std::move(drawable))) {}
+Scene::Scene(Shader shader, std::unique_ptr<Drawable> drawable)
+    : impl(std::make_unique<Impl>(std::move(shader), std::move(drawable))) {}
 Scene::~Scene() = default;
 
 void Scene::render(const Window& window, StagedTransform& transform) {
@@ -73,11 +72,6 @@ void Scene::render(const Window& window, StagedTransform& transform) {
 }
 void Scene::Impl::render(const Window& window, StagedTransform& transform) {
     window.make_current();
-
-    // clear canvas
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Draw model with user-specified mode
     glPolygonMode(GL_FRONT_AND_BACK, mode.mode());

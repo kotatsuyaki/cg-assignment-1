@@ -11,7 +11,7 @@
 // TODO: Break scene into layers
 class Scene final {
   public:
-    Scene(Shader shader, Vector3 clear_color, std::unique_ptr<Drawable> drawable);
+    Scene(Shader shader, std::unique_ptr<Drawable> drawable);
     ~Scene();
 
     // Prevent copy, allow move
