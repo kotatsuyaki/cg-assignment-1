@@ -1,6 +1,7 @@
 #include "model.hpp"
 
 #include <exception>
+#include <filesystem>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -11,6 +12,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <glad/glad.h>
 #include <tinyobjloader/tiny_obj_loader.h>
+
+namespace fs = std::filesystem;
 
 namespace {
 void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
@@ -90,7 +93,9 @@ void Model::Impl::load() const {
 
     std::string err, warn;
 
-    bool res = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.data());
+    const auto parent_path = fs::path(path).parent_path();
+    bool res = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str(),
+                                parent_path.string().c_str());
 
     if (res == false) {
         throw std::runtime_error(std::string("Failed to load object file:\n") + err + "\n" + warn);
