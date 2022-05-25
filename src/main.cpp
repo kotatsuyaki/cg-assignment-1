@@ -42,11 +42,12 @@ void init() {
     ModelList models{model_paths};
 
     // Setup scene
-    Scene scene{std::move(shader), std::make_unique<ModelList>(models)};
+    Scene scene{shader, std::make_unique<ModelList>(models)};
 
     // Setup transformation and control objects
     Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
     MvpControl control{};
+    LightMode light_mode{};
 
     // Setup keyboard callbacks
     window.on_keydown(Key::Z, [&]() { models.prev_model(); });
@@ -62,6 +63,11 @@ void init() {
     window.on_keydown(Key::E, [&]() { control.set_mode(MvpControl::Mode::TranslateEyePos); });
     window.on_keydown(Key::C, [&]() { control.set_mode(MvpControl::Mode::TranslateViewCenter); });
     window.on_keydown(Key::U, [&]() { control.set_mode(MvpControl::Mode::TranslateViewUp); });
+
+    window.on_keydown(Key::L, [&]() {
+        light_mode.next();
+        shader.set_uniform("light_mode", light_mode.int_value());
+    });
 
     window.on_keydown(Key::V, [&]() {
         const bool on = window.toggle_vsync();
@@ -89,10 +95,11 @@ void init() {
     window.loop(
         [&]() {
             control.update(mvp);
+            shader.set_uniform("is_vertex_light", 1);
             scene.render(window, mvp);
         },
         [&]() {
-            control.update(mvp);
+            shader.set_uniform("is_vertex_light", 0);
             scene.render(window, mvp);
         });
 }

@@ -17,9 +17,9 @@ uniform vec3 ka;
 uniform vec3 kd;
 uniform vec3 ks;
 
-const int is_pixel_lighting = 1;
+uniform int light_mode;
+uniform int is_vertex_light;
 
-const int light_mode = 0;
 const vec3 light_pos = vec3(1.0f, 1.0f, 1.0f);
 const float diffuse = 1.0f;
 const float cutoff = radians(30);
@@ -33,6 +33,7 @@ const vec3 POINT_ATTEN_COEF = vec3(0.01f, 0.8f, 0.1f);
 const vec3 SPOT_ATTEN_COEF = vec3(0.05, 0.3f, 0.6f);
 
 const vec3 BAD_MOVE = vec3(1.0f, 0.0f, 0.5f);
+const vec3 NOT_VERTEX_LIGHT = vec3(0.5f, 1.0f, 0.0f);
 
 // Apply polynomial coefficients specified in `coef` to variable `d`
 float poly(float d, vec3 coef) {
@@ -84,7 +85,7 @@ void main() {
     }
     h = normalize(normalize(vec3(0.0f, 0.0f, 2.0f) - world_pos_p) + l);
 
-	if (is_pixel_lighting == 0) {
+	if (is_vertex_light == 1) {
         float atten = compute_atten(light_mode, light_pos, world_pos.xyz);
         float spot = compute_spot(light_mode, l);
 
@@ -93,7 +94,9 @@ void main() {
 		vec3 spec = ks * pow(max(dot(normalize(n), normalize(h)), 0.0f), shine);
 
 		vertex_color = ambient + spot * atten * (diffu + spec);
-	}
+	} else {
+		vertex_color = NOT_VERTEX_LIGHT;
+    }
 }
 
 // vim: set ft=glsl:

@@ -8,18 +8,17 @@ in vec3 h;
 
 out vec4 out_color;
 
-const int light_mode = 0;
+uniform vec3 ka;
+uniform vec3 kd;
+uniform vec3 ks;
+
+uniform int light_mode;
+uniform int is_vertex_light;
 
 const vec3 light_pos = vec3(1.0f, 1.0f, 1.0f);
 const float diffuse = 1.0f;
 const float cutoff = radians(30);
 const float shine = 64.0f;
-
-const int is_pixel_lighting = 1;
-
-uniform vec3 ka;
-uniform vec3 kd;
-uniform vec3 ks;
 
 const int DIR_MODE = 0;
 const int POINT_MODE = 1;
@@ -58,7 +57,9 @@ float compute_spot(int light_mode, vec3 l) {
 }
 
 void main() {
-	if (is_pixel_lighting == 1) {
+	if (is_vertex_light == 1) {
+		out_color = vec4(vertex_color, 1.0f);
+	} else {
         float atten = compute_atten(light_mode, light_pos, world_pos.xyz);
         float spot = compute_spot(light_mode, l);
 
@@ -68,8 +69,6 @@ void main() {
 
 		vec3 color = amb + spot * atten * (diffu + spec);
 		out_color = vec4(color, 1.0f);
-	} else {
-		out_color = vec4(vertex_color, 1.0f);
 	}
 }
 

@@ -13,11 +13,9 @@ class Shader::Impl {
     Impl(GLuint program) : program(program), uniform_locations() {}
     ~Impl() { glDeleteProgram(program); }
 
-    Impl(const Impl&) = delete;
-    Impl& operator=(const Impl&) = delete;
-
     void set_uniform(std::string_view name, const Matrix4& mat);
     void set_uniform(std::string_view name, const Vector3& vec);
+    void set_uniform(std::string_view name, GLint value);
 
     GLint uniform_location(std::string_view name);
 
@@ -27,7 +25,6 @@ class Shader::Impl {
     // Internal cache for uniform locations
     std::unordered_map<std::string, GLint> uniform_locations;
 };
-void Shader::ImplDeleter::operator()(Impl* ptr) const { delete ptr; }
 
 Shader::Shader(const Window& window, std::string_view vertex_shader_src,
                std::string_view fragment_shader_src) {
@@ -87,7 +84,7 @@ Shader::Shader(const Window& window, std::string_view vertex_shader_src,
     glDeleteShader(f);
     glUseProgram(p);
 
-    impl = std::unique_ptr<Impl, ImplDeleter>(new Impl(p));
+    impl = std::make_shared<Impl>(p);
 }
 Shader::~Shader() {}
 
@@ -105,6 +102,12 @@ void Shader::set_uniform(std::string_view name, const Vector3& vec) {
 void Shader::Impl::set_uniform(std::string_view name, const Vector3& vec) {
     const GLint loc = uniform_location(name);
     glUniform3fv(loc, 1, vec.data());
+}
+
+void Shader::set_uniform(std::string_view name, GLint value) { impl->set_uniform(name, value); }
+void Shader::Impl::set_uniform(std::string_view name, GLint value) {
+    const GLint loc = uniform_location(name);
+    glUniform1i(loc, value);
 }
 
 GLint Shader::Impl::uniform_location(std::string_view name) {

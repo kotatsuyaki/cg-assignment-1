@@ -36,4 +36,22 @@ class MvpControl {
     class Impl;
     std::unique_ptr<Impl> impl;
 };
+
+class LightMode {
+  public:
+    enum Value : int { Direction, Point, Spot };
+
+    LightMode() = default;
+    inline constexpr LightMode(Value value) : value(value) {}
+
+    inline constexpr bool operator==(LightMode a) const { return value == a.value; }
+    inline constexpr bool operator!=(LightMode a) const { return value != a.value; }
+
+    inline int int_value() const { return value; }
+    inline void next() { value = static_cast<Value>((int_value() + 1) % 3); }
+
+  private:
+    Value value;
+};
+
 #endif
