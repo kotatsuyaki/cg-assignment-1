@@ -6,7 +6,7 @@
 #include "shader.hpp"
 #include "transform/mvp.hpp"
 
-class LightOpts;
+struct LightOpts;
 
 // Class making changes to instances of Mvp and other shader program parameters.
 class Control {
