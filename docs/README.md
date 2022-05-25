@@ -7,13 +7,6 @@ While it may not seem like the original template project at all,
 it was indeed incrementally refactored from the template.
 Most of the code are abstractions and wrappers around the underlying raw APIs.
 
-This project heavily embraces the [Pimpl idiom](https://en.cppreference.com/w/cpp/language/pimpl)
-to stop implementation details from leaking from header files.
-Glancing through the header files gives you a rough idea of what the classes do.
-
-The parts concerning MVP transformations reside in the `src/transform/` subdirectory,
-where the transformation matrices are computed.
-
 
 # Usage
 
@@ -22,8 +15,9 @@ where the transformation matrices are computed.
 A folder picker dialog[^1] is implemented for the user to select the folder containing model files to load
 (see [screenshots](#screenshots) for reference).
 All files with the `.obj` extension directly under the path selected is loaded into the program.
+Material files with the `.mtl` extension is also searched for under the same path.
 
-The model files used for testing can [be found here](https://github.com/kotatsuyaki/ColorModels).
+The model files used for testing can [be found here](https://github.com/kotatsuyaki/nthu-cg-models).
 
 ## Key Mappings
 
@@ -43,6 +37,9 @@ All key mappings specified in the assignment spec are implemented.
 | `c`     | Set control to viewing center mode         |
 | `u`     | Set control to camera up vector mode       |
 | `i`     | Print debug information to standard output |
+| `l`     | Cycle among the lighting modes             |
+| `k`     | Set control to light editing mode          |
+| `j`     | Set control to shininess editing mode      |
 | `v`[^2] | Toggle VSync (defaults to true)            |
 
 [^1]: This is not part of the assignment spec.
@@ -143,10 +140,12 @@ The binary is at `./result/bin/proj`.
 
 ![The model file folder picker](./screenshots/folder-picker.png)
 
-![The rabbit model in default setup](./screenshots/rabbit-default.png)
+![The rabbit model in default setup with directional light](./screenshots/rabbit-default-directional.png)
 
-![The rabbit model viewed from a moved camera](./screenshots/rabbit-moved-camera.png)
+![The rabbit model in default setup with point light](./screenshots/rabbit-default-point.png)
 
-![The man-with-hat model, scaled, rotated, and translated](./screenshots/man-in-water.png)
+![The rabbit model in default setup with spotlight](./screenshots/rabbit-default-spotlight.png)
 
-![Orthogonal projection, demoed with the cube model](./screenshots/rgb-cuboid-ortho.png)
+![The rabbit model with directional light from the left](./screenshots/rabbit-from-left-directional.png)
+
+![The rabbit model with spotlight focusing on the head](./screenshots/rabbit-head-spotlight.png)

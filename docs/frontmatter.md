@@ -1,10 +1,10 @@
 ---
 # vim: set ft=markdown.pandoc colorcolumn=100:
 
-title: '3D Model Viewer'
-subtitle: 'Assignment 1, CS5500 Computer Graphics'
+title: '3D Model Viewer with Lighting'
+subtitle: 'Assignment 2, CS5500 Computer Graphics'
 author: '107021129 黃明瀧'
-date: 2022-04-27
+date: 2022-05-25
 
 maketitle: true
 colorlinks: true
@@ -18,7 +18,7 @@ colorlinks: true
 >   under `binaries/` inside the ZIP file.
 > - Build instructions for Linux, Windows, and macOS are documented in the PDF file.
 >
-> This project is hosted at <https://github.com/kotatsuyaki/cg-assignment-1>.
+> This project is hosted at <https://github.com/kotatsuyaki/cg-assignment-1/tree/hw2>.
 > If you have any questions, contact me at robinhuang123@gmail.com.
 > Alternatively, you may also find me on the
 > [Gitter room for this project](https://gitter.im/cg-assignment-1/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link).
