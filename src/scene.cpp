@@ -60,7 +60,6 @@ class Scene::Impl {
     Quad quad;
 
     void draw_model(const StagedTransform& transform);
-    void draw_floor(const StagedTransform& transform);
 };
 
 Scene::Scene(Shader shader, std::unique_ptr<Drawable> drawable)
@@ -76,23 +75,15 @@ void Scene::Impl::render(const Window& window, StagedTransform& transform) {
     // Draw model with user-specified mode
     glPolygonMode(GL_FRONT_AND_BACK, mode.mode());
     draw_model(transform);
-
-    // Always draw floor with filled mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    draw_floor(transform);
 }
 
 void Scene::Impl::draw_model(const StagedTransform& transform) {
-    const Matrix4 mvp = transform.matrix();
-
-    shader.set_uniform("mvp", mvp);
-    drawable->draw();
-}
-
-void Scene::Impl::draw_floor(const StagedTransform& transform) {
+    const Matrix4 m = transform.model_matrix();
     const Matrix4 vp = transform.view_project_matrix();
-    shader.set_uniform("mvp", vp);
-    quad.draw();
+
+    shader.set_uniform("m", m);
+    shader.set_uniform("vp", vp);
+    drawable->draw();
 }
 
 void Scene::switch_render_mode() { impl->switch_render_mode(); }

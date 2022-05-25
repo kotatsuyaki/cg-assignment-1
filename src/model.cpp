@@ -17,7 +17,8 @@ namespace fs = std::filesystem;
 
 namespace {
 void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
-               std::vector<GLfloat>& colors, tinyobj::shape_t* shape);
+               std::vector<GLfloat>& colors, std::vector<GLfloat>& normals,
+               tinyobj::shape_t* shape);
 enum class LoadStatus {
     NotYet,
     Loaded,
@@ -30,10 +31,11 @@ struct Model::Impl {
 
     mutable LoadStatus status;
 
-    mutable GLuint vao;
-    mutable GLuint vertices;
-    mutable GLuint colors;
-    mutable size_t vertex_count;
+    mutable GLuint vao = 0;
+    mutable GLuint vertices = 0;
+    mutable GLuint colors = 0;
+    mutable GLuint normals = 0;
+    mutable size_t vertex_count = 0;
 
     Impl(std::string_view path);
 
@@ -80,6 +82,7 @@ void Model::Impl::unload() const {
     if (status == LoadStatus::Loaded) {
         glDeleteBuffers(1, &vertices);
         glDeleteBuffers(1, &colors);
+        glDeleteBuffers(1, &normals);
         glDeleteVertexArrays(1, &vao);
     }
 }
@@ -90,6 +93,7 @@ void Model::Impl::load() const {
     tinyobj::attrib_t attrib;
     std::vector<GLfloat> vertices;
     std::vector<GLfloat> colors;
+    std::vector<GLfloat> normals;
 
     std::string err, warn;
 
@@ -101,25 +105,24 @@ void Model::Impl::load() const {
         throw std::runtime_error(std::string("Failed to load object file:\n") + err + "\n" + warn);
     }
 
-    normalize(&attrib, vertices, colors, &shapes[0]);
+    normalize(&attrib, vertices, colors, normals, &shapes[0]);
+    vertex_count = vertices.size() / 3;
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    glGenBuffers(1, &this->vertices);
-    glBindBuffer(GL_ARRAY_BUFFER, (this->vertices));
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices.at(0),
-                 GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    vertex_count = vertices.size() / 3;
+    const auto gen_and_bind = [](GLuint index, GLuint& buffer, auto& vec) {
+        glGenBuffers(1, &buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(GLfloat), &vec.at(0), GL_STATIC_DRAW);
 
-    glGenBuffers(1, &this->colors);
-    glBindBuffer(GL_ARRAY_BUFFER, this->colors);
-    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(GLfloat), &colors.at(0), GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(index);
+    };
 
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
+    gen_and_bind(0, this->vertices, vertices);
+    gen_and_bind(1, this->colors, colors);
+    gen_and_bind(2, this->normals, normals);
 
     std::cerr << "Loaded model from " << path << " successfully\n";
 }
@@ -167,7 +170,8 @@ void ModelList::draw() const { current().draw(); }
 
 namespace {
 void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
-               std::vector<GLfloat>& colors, tinyobj::shape_t* shape) {
+               std::vector<GLfloat>& colors, std::vector<GLfloat>& normals,
+               tinyobj::shape_t* shape) {
     std::vector<float> xs, ys, zs;
     float min_x = 10000, max_x = -10000, min_y = 10000, max_y = -10000, min_z = 10000,
           max_z = -10000;
@@ -256,10 +260,16 @@ void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
             vertices.push_back(attrib->vertices[3 * idx.vertex_index + 0]);
             vertices.push_back(attrib->vertices[3 * idx.vertex_index + 1]);
             vertices.push_back(attrib->vertices[3 * idx.vertex_index + 2]);
-            // Optional: vertex colors
+
             colors.push_back(attrib->colors[3 * idx.vertex_index + 0]);
             colors.push_back(attrib->colors[3 * idx.vertex_index + 1]);
             colors.push_back(attrib->colors[3 * idx.vertex_index + 2]);
+
+            if (idx.normal_index >= 0) {
+                normals.push_back(attrib->normals[3 * idx.normal_index + 0]);
+                normals.push_back(attrib->normals[3 * idx.normal_index + 1]);
+                normals.push_back(attrib->normals[3 * idx.normal_index + 2]);
+            }
         }
         index_offset += fv;
     }
