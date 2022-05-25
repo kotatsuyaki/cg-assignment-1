@@ -13,6 +13,7 @@
 #ifndef VECTORS_H_DEF
 #define VECTORS_H_DEF
 
+#include <array>
 #include <cmath>
 #include <iostream>
 
@@ -61,13 +62,19 @@ struct Vector2 {
 // 3D vector
 ///////////////////////////////////////////////////////////////////////////////
 struct Vector3 {
-    float x;
-    float y;
-    float z;
+    std::array<float, 3> v;
+
+    inline float& x() { return v[0]; }
+    inline float x() const { return v[0]; }
+    inline float& y() { return v[1]; }
+    inline float y() const { return v[1]; }
+    inline float& z() { return v[2]; }
+    inline float z() const { return v[2]; }
 
     // ctors
-    constexpr Vector3() : x(0), y(0), z(0){};
-    constexpr Vector3(float x, float y, float z) : x(x), y(y), z(z){};
+    constexpr Vector3() : v({0, 0, 0}){};
+    constexpr Vector3(float x, float y, float z) : v({x, y, z}){};
+    constexpr Vector3(const float arr[3]) : v({arr[0], arr[1], arr[2]}){};
 
     // utils functions
     void set(float x, float y, float z);
@@ -77,6 +84,8 @@ struct Vector3 {
     float dot(const Vector3& vec) const;           // dot product
     Vector3 cross(const Vector3& vec) const;       // cross product
     bool equal(const Vector3& vec, float e) const; // compare with epsilon
+
+    const float* data() const;
 
     // operators
     Vector3 operator-() const;                   // unary operator (negate)
@@ -99,6 +108,23 @@ struct Vector3 {
     friend Vector3 operator*(const float a, const Vector3 vec);
     friend std::ostream& operator<<(std::ostream& os, const Vector3& vec);
 };
+
+template <std::size_t Index> std::tuple_element_t<Index, Vector3> get(const Vector3& vec) {
+    if constexpr (Index == 0)
+        return vec.x();
+    if constexpr (Index == 1)
+        return vec.y();
+    if constexpr (Index == 2)
+        return vec.z();
+}
+
+namespace std {
+template <> struct tuple_size<Vector3> : std::integral_constant<size_t, 3> {};
+
+template <> struct tuple_element<0, Vector3> { using type = float; };
+template <> struct tuple_element<1, Vector3> { using type = float; };
+template <> struct tuple_element<2, Vector3> { using type = float; };
+} // namespace std
 
 ///////////////////////////////////////////////////////////////////////////////
 // 4D vector
@@ -265,129 +291,140 @@ inline std::ostream& operator<<(std::ostream& os, const Vector2& vec) {
 ///////////////////////////////////////////////////////////////////////////////
 // inline functions for Vector3
 ///////////////////////////////////////////////////////////////////////////////
-inline Vector3 Vector3::operator-() const { return Vector3(-x, -y, -z); }
+inline Vector3 Vector3::operator-() const { return Vector3(-x(), -y(), -z()); }
 
 inline Vector3 Vector3::operator+(const Vector3& rhs) const {
-    return Vector3(x + rhs.x, y + rhs.y, z + rhs.z);
+    return Vector3(x() + rhs.x(), y() + rhs.y(), z() + rhs.z());
 }
 
 inline Vector3 Vector3::operator-(const Vector3& rhs) const {
-    return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);
+    return Vector3(x() - rhs.x(), y() - rhs.y(), z() - rhs.z());
 }
 
 inline Vector3& Vector3::operator+=(const Vector3& rhs) {
-    x += rhs.x;
-    y += rhs.y;
-    z += rhs.z;
+    x() += rhs.x();
+    y() += rhs.y();
+    z() += rhs.z();
     return *this;
 }
 
 inline Vector3& Vector3::operator-=(const Vector3& rhs) {
-    x -= rhs.x;
-    y -= rhs.y;
-    z -= rhs.z;
+    x() -= rhs.x();
+    y() -= rhs.y();
+    z() -= rhs.z();
     return *this;
 }
 
-inline Vector3 Vector3::operator*(const float a) const { return Vector3(x * a, y * a, z * a); }
+inline Vector3 Vector3::operator*(const float a) const {
+    return Vector3(x() * a, y() * a, z() * a);
+}
 
 inline Vector3 Vector3::operator*(const Vector3& rhs) const {
-    return Vector3(x * rhs.x, y * rhs.y, z * rhs.z);
+    return Vector3(x() * rhs.x(), y() * rhs.y(), z() * rhs.z());
 }
 
 inline Vector3& Vector3::operator*=(const float a) {
-    x *= a;
-    y *= a;
-    z *= a;
+    x() *= a;
+    y() *= a;
+    z() *= a;
     return *this;
 }
 
 inline Vector3& Vector3::operator*=(const Vector3& rhs) {
-    x *= rhs.x;
-    y *= rhs.y;
-    z *= rhs.z;
+    x() *= rhs.x();
+    y() *= rhs.y();
+    z() *= rhs.z();
     return *this;
 }
 
-inline Vector3 Vector3::operator/(const float a) const { return Vector3(x / a, y / a, z / a); }
+inline Vector3 Vector3::operator/(const float a) const {
+    return Vector3(x() / a, y() / a, z() / a);
+}
 
 inline Vector3& Vector3::operator/=(const float a) {
-    x /= a;
-    y /= a;
-    z /= a;
+    x() /= a;
+    y() /= a;
+    z() /= a;
     return *this;
 }
 
 inline bool Vector3::operator==(const Vector3& rhs) const {
-    return (x == rhs.x) && (y == rhs.y) && (z == rhs.z);
+    return (x() == rhs.x()) && (y() == rhs.y()) && (z() == rhs.z());
 }
 
 inline bool Vector3::operator!=(const Vector3& rhs) const {
-    return (x != rhs.x) || (y != rhs.y) || (z != rhs.z);
+    return (x() != rhs.x()) || (y() != rhs.y()) || (z() != rhs.z());
 }
 
 inline bool Vector3::operator<(const Vector3& rhs) const {
-    if (x < rhs.x)
+    if (x() < rhs.x())
         return true;
-    if (x > rhs.x)
+    if (x() > rhs.x())
         return false;
-    if (y < rhs.y)
+    if (y() < rhs.y())
         return true;
-    if (y > rhs.y)
+    if (y() > rhs.y())
         return false;
-    if (z < rhs.z)
+    if (z() < rhs.z())
         return true;
-    if (z > rhs.z)
+    if (z() > rhs.z())
         return false;
     return false;
 }
 
-inline float Vector3::operator[](size_t index) const { return (&x)[index]; }
+inline float Vector3::operator[](size_t index) const { return v[index]; }
 
-inline float& Vector3::operator[](size_t index) { return (&x)[index]; }
+inline float& Vector3::operator[](size_t index) { return v[index]; }
 
 inline void Vector3::set(float x, float y, float z) {
-    this->x = x;
-    this->y = y;
-    this->z = z;
+    this->x() = x;
+    this->y() = y;
+    this->z() = z;
 }
 
-inline float Vector3::length() const { return sqrtf(x * x + y * y + z * z); }
+inline float Vector3::length() const { return sqrtf(x() * x() + y() * y() + z() * z()); }
 
 inline float Vector3::distance(const Vector3& vec) const {
-    return sqrtf((vec.x - x) * (vec.x - x) + (vec.y - y) * (vec.y - y) + (vec.z - z) * (vec.z - z));
+    return sqrtf((vec.x() - x()) * (vec.x() - x()) + (vec.y() - y()) * (vec.y() - y()) +
+                 (vec.z() - z()) * (vec.z() - z()));
 }
 
 inline Vector3& Vector3::normalize() {
     //@@const float EPSILON = 0.000001f;
-    float xxyyzz = x * x + y * y + z * z;
+    float xxyyzz = x() * x() + y() * y() + z() * z();
     //@@if(xxyyzz < EPSILON)
     //@@    return *this; // do nothing if it is ~zero vector
 
     // float invLength = invSqrt(xxyyzz);
     float inv_length = 1.0f / sqrtf(xxyyzz);
-    x *= inv_length;
-    y *= inv_length;
-    z *= inv_length;
+    x() *= inv_length;
+    y() *= inv_length;
+    z() *= inv_length;
     return *this;
 }
 
-inline float Vector3::dot(const Vector3& rhs) const { return (x * rhs.x + y * rhs.y + z * rhs.z); }
+inline float Vector3::dot(const Vector3& rhs) const {
+    return (x() * rhs.x() + y() * rhs.y() + z() * rhs.z());
+}
 
 inline Vector3 Vector3::cross(const Vector3& rhs) const {
-    return Vector3(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x);
+    return Vector3(y() * rhs.z() - z() * rhs.y(), z() * rhs.x() - x() * rhs.z(),
+                   x() * rhs.y() - y() * rhs.x());
 }
 
 inline bool Vector3::equal(const Vector3& rhs, float epsilon) const {
-    return fabs(x - rhs.x) < epsilon && fabs(y - rhs.y) < epsilon && fabs(z - rhs.z) < epsilon;
+    return fabs(x() - rhs.x()) < epsilon && fabs(y() - rhs.y()) < epsilon &&
+           fabs(z() - rhs.z()) < epsilon;
 }
 
+inline const float* Vector3::data() const { return v.data(); }
+
 inline Vector3 operator*(const float a, const Vector3 vec) {
-    return Vector3(a * vec.x, a * vec.y, a * vec.z);
+    return Vector3(a * vec.x(), a * vec.y(), a * vec.z());
 }
 
 inline std::ostream& operator<<(std::ostream& os, const Vector3& vec) {
-    os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
+    os << "(" << vec.x() << ", " << vec.y() << ", " << vec.z() << ")";
     return os;
 }
 // END OF VECTOR3 /////////////////////////////////////////////////////////////

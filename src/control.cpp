@@ -36,7 +36,7 @@ MvpControl::~MvpControl() = default;
 void MvpControl::update(Mvp& mvp) { impl->update(mvp); }
 void MvpControl::Impl::update(Mvp& mvp) {
     if (pressed == false) {
-        accumulated.x = accumulated.y = 0;
+        accumulated.x() = accumulated.y() = 0;
     }
     accumulated *= DIRECTION_SCALES;
 

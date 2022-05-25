@@ -3,9 +3,11 @@
 
 #include <memory>
 
+#include "shader.hpp"
+
 class Drawable {
   public:
-    virtual void draw() const = 0;
+    virtual void draw(Shader& shader) const = 0;
     virtual ~Drawable() = default;
 };
 

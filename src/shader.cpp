@@ -17,6 +17,8 @@ class Shader::Impl {
     Impl& operator=(const Impl&) = delete;
 
     void set_uniform(std::string_view name, const Matrix4& mat);
+    void set_uniform(std::string_view name, const Vector3& vec);
+
     GLint uniform_location(std::string_view name);
 
   private:
@@ -95,6 +97,14 @@ void Shader::set_uniform(std::string_view name, const Matrix4& mat) {
 void Shader::Impl::set_uniform(std::string_view name, const Matrix4& mat) {
     const GLint loc = uniform_location(name);
     glUniformMatrix4fv(loc, 1, GL_TRUE, mat.data());
+}
+
+void Shader::set_uniform(std::string_view name, const Vector3& vec) {
+    impl->set_uniform(name, vec);
+}
+void Shader::Impl::set_uniform(std::string_view name, const Vector3& vec) {
+    const GLint loc = uniform_location(name);
+    glUniform3fv(loc, 1, vec.data());
 }
 
 GLint Shader::Impl::uniform_location(std::string_view name) {

@@ -387,7 +387,7 @@ float Matrix4::get_cofactor(float m0, float m1, float m2, float m3, float m4, fl
 ///////////////////////////////////////////////////////////////////////////////
 // translate this matrix by (x, y, z)
 ///////////////////////////////////////////////////////////////////////////////
-Matrix4& Matrix4::translate(const Vector3& v) { return translate(v.x, v.y, v.z); }
+Matrix4& Matrix4::translate(const Vector3& v) { return translate(v.x(), v.y(), v.z()); }
 
 Matrix4& Matrix4::translate(float x, float y, float z) {
     m[0] += m[12] * x;
@@ -431,7 +431,7 @@ Matrix4& Matrix4::scale(float x, float y, float z) {
 // multiply it with this object
 ///////////////////////////////////////////////////////////////////////////////
 Matrix4& Matrix4::rotate(float angle, const Vector3& axis) {
-    return rotate(angle, axis.x, axis.y, axis.z);
+    return rotate(angle, axis.x(), axis.y(), axis.z());
 }
 
 Matrix4& Matrix4::rotate(float angle, float x, float y, float z) {
@@ -701,9 +701,9 @@ void Matrix3::set_row(size_t index, const float row[3]) {
 }
 
 void Matrix3::set_row(size_t index, const Vector3& v) {
-    m[index * 3] = v.x;
-    m[index * 3 + 1] = v.y;
-    m[index * 3 + 2] = v.z;
+    m[index * 3] = v.x();
+    m[index * 3 + 1] = v.y();
+    m[index * 3 + 2] = v.z();
 }
 
 void Matrix3::set_column(size_t index, const float col[3]) {
@@ -713,9 +713,9 @@ void Matrix3::set_column(size_t index, const float col[3]) {
 }
 
 void Matrix3::set_column(size_t index, const Vector3& v) {
-    m[index] = v.x;
-    m[index + 3] = v.y;
-    m[index + 6] = v.z;
+    m[index] = v.x();
+    m[index + 3] = v.y();
+    m[index + 6] = v.z();
 }
 
 const float* Matrix3::data() const { return m; }
@@ -763,9 +763,9 @@ Matrix3& Matrix3::operator-=(const Matrix3& rhs) {
 }
 
 Vector3 Matrix3::operator*(const Vector3& rhs) const {
-    return Vector3(m[0] * rhs.x + m[1] * rhs.y + m[2] * rhs.z,
-                   m[3] * rhs.x + m[4] * rhs.y + m[5] * rhs.z,
-                   m[6] * rhs.x + m[7] * rhs.y + m[8] * rhs.z);
+    return Vector3(m[0] * rhs.x() + m[1] * rhs.y() + m[2] * rhs.z(),
+                   m[3] * rhs.x() + m[4] * rhs.y() + m[5] * rhs.z(),
+                   m[6] * rhs.x() + m[7] * rhs.y() + m[8] * rhs.z());
 }
 
 Matrix3 Matrix3::operator*(const Matrix3& rhs) const {
@@ -811,8 +811,9 @@ Matrix3 operator*(float s, const Matrix3& rhs) {
 }
 
 Vector3 operator*(const Vector3& v, const Matrix3& m) {
-    return Vector3(v.x * m[0] + v.y * m[3] + v.z * m[6], v.x * m[1] + v.y * m[4] + v.z * m[7],
-                   v.x * m[2] + v.y * m[5] + v.z * m[8]);
+    return Vector3(v.x() * m[0] + v.y() * m[3] + v.z() * m[6],
+                   v.x() * m[1] + v.y() * m[4] + v.z() * m[7],
+                   v.x() * m[2] + v.y() * m[5] + v.z() * m[8]);
 }
 
 std::ostream& operator<<(std::ostream& os, const Matrix3& m) {
@@ -898,9 +899,9 @@ void Matrix4::set_row(size_t index, const Vector4& v) {
 }
 
 void Matrix4::set_row(size_t index, const Vector3& v) {
-    m[index * 4] = v.x;
-    m[index * 4 + 1] = v.y;
-    m[index * 4 + 2] = v.z;
+    m[index * 4] = v.x();
+    m[index * 4 + 1] = v.y();
+    m[index * 4 + 2] = v.z();
 }
 
 void Matrix4::set_column(size_t index, const float col[4]) {
@@ -918,9 +919,9 @@ void Matrix4::set_column(size_t index, const Vector4& v) {
 }
 
 void Matrix4::set_column(size_t index, const Vector3& v) {
-    m[index] = v.x;
-    m[index + 4] = v.y;
-    m[index + 8] = v.z;
+    m[index] = v.x();
+    m[index + 4] = v.y();
+    m[index + 8] = v.z();
 }
 
 const float* Matrix4::data() const { return m; }
@@ -993,9 +994,9 @@ Vector4 Matrix4::operator*(const Vector4& rhs) const {
 }
 
 Vector3 Matrix4::operator*(const Vector3& rhs) const {
-    return Vector3(m[0] * rhs.x + m[1] * rhs.y + m[2] * rhs.z,
-                   m[4] * rhs.x + m[5] * rhs.y + m[6] * rhs.z,
-                   m[8] * rhs.x + m[9] * rhs.y + m[10] * rhs.z);
+    return Vector3(m[0] * rhs.x() + m[1] * rhs.y() + m[2] * rhs.z(),
+                   m[4] * rhs.x() + m[5] * rhs.y() + m[6] * rhs.z(),
+                   m[8] * rhs.x() + m[9] * rhs.y() + m[10] * rhs.z());
 }
 
 Matrix4 Matrix4::operator*(const Matrix4& n) const {
@@ -1059,8 +1060,9 @@ Vector4 operator*(const Vector4& v, const Matrix4& m) {
 }
 
 Vector3 operator*(const Vector3& v, const Matrix4& m) {
-    return Vector3(v.x * m[0] + v.y * m[4] + v.z * m[8], v.x * m[1] + v.y * m[5] + v.z * m[9],
-                   v.x * m[2] + v.y * m[6] + v.z * m[10]);
+    return Vector3(v.x() * m[0] + v.y() * m[4] + v.z() * m[8],
+                   v.x() * m[1] + v.y() * m[5] + v.z() * m[9],
+                   v.x() * m[2] + v.y() * m[6] + v.z() * m[10]);
 }
 
 std::ostream& operator<<(std::ostream& os, const Matrix4& m) {

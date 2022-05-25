@@ -12,13 +12,13 @@ Matrix4 Viewer::Impl::matrix() const {
     const Vector3 x_axis = z_axis.cross(up).normalize();
     const Vector3 y_axis = x_axis.cross(z_axis).normalize();
 
-    const Matrix4 rot{x_axis.x,  x_axis.y,  x_axis.z,  0, //
-                      y_axis.x,  y_axis.y,  y_axis.z,  0, //
-                      -z_axis.x, -z_axis.y, -z_axis.z, 0, //
-                      0,         0,         0,         1};
-    const Matrix4 trans{1, 0, 0, -eye.x, //
-                        0, 1, 0, -eye.y, //
-                        0, 0, 1, -eye.z, //
+    const Matrix4 rot{x_axis.x(),  x_axis.y(),  x_axis.z(),  0, //
+                      y_axis.x(),  y_axis.y(),  y_axis.z(),  0, //
+                      -z_axis.x(), -z_axis.y(), -z_axis.z(), 0, //
+                      0,           0,           0,           1};
+    const Matrix4 trans{1, 0, 0, -eye.x(), //
+                        0, 1, 0, -eye.y(), //
+                        0, 0, 1, -eye.z(), //
                         0, 0, 0, 1};
 
     return rot * trans;

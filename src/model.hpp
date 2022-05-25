@@ -22,7 +22,7 @@ class Model final : public Drawable {
     Model(std::string_view path);
 
     // Draws the model using GL functions
-    virtual void draw() const override;
+    virtual void draw(Shader& shader) const override;
 
   private:
     struct Impl;
@@ -45,7 +45,7 @@ class ModelList final : public Drawable {
     // Switches current index to the previous model.
     void prev_model();
 
-    virtual void draw() const override;
+    virtual void draw(Shader& shader) const override;
 
   private:
     struct Impl;

@@ -1,4 +1,5 @@
 #include "model.hpp"
+#include "vector.hpp"
 
 #include <exception>
 #include <filesystem>
@@ -24,6 +25,15 @@ enum class LoadStatus {
     Loaded,
     Failed,
 };
+
+struct Material {
+    // Ambient color
+    Vector3 ka{1, 1, 1};
+    // Diffuse color
+    Vector3 kd{1, 1, 1};
+    // Specular color
+    Vector3 ks{1, 1, 1};
+};
 } // namespace
 
 struct Model::Impl {
@@ -37,6 +47,8 @@ struct Model::Impl {
     mutable GLuint normals = 0;
     mutable size_t vertex_count = 0;
 
+    mutable Material material;
+
     Impl(std::string_view path);
 
     // Delete the OpenGL objects
@@ -48,7 +60,7 @@ struct Model::Impl {
     Impl(Impl&&) = delete;
     Impl& operator=(Impl&&) = delete;
 
-    void draw() const;
+    void draw(Shader& shader) const;
     void load() const;
     void unload() const;
 };
@@ -59,8 +71,8 @@ Model::Impl::~Impl() { unload(); }
 
 Model::Model(std::string_view path) : impl(std::make_shared<Impl>(path)) {}
 
-void Model::draw() const { impl->draw(); }
-void Model::Impl::draw() const {
+void Model::draw(Shader& shader) const { impl->draw(shader); }
+void Model::Impl::draw(Shader& shader) const {
     if (status == LoadStatus::NotYet) {
         try {
             load();
@@ -73,6 +85,11 @@ void Model::Impl::draw() const {
 
     if (status == LoadStatus::Loaded) {
         glBindVertexArray(vao);
+
+        shader.set_uniform("ka", material.ka);
+        shader.set_uniform("kd", material.kd);
+        shader.set_uniform("ks", material.ks);
+
         // NOTE: We don't have boost::numeric_cast available.  This cast may overflow.
         glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count));
     }
@@ -107,6 +124,15 @@ void Model::Impl::load() const {
 
     normalize(&attrib, vertices, colors, normals, &shapes[0]);
     vertex_count = vertices.size() / 3;
+
+    if (materials.empty() == false) {
+        const auto& mat = materials[0];
+        material.ka = Vector3{mat.ambient};
+        material.kd = Vector3{mat.diffuse};
+        material.ks = Vector3{mat.specular};
+    } else {
+        std::cerr << "No materials found\n";
+    }
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -166,7 +192,7 @@ void ModelList::prev_model() {
     }
 }
 
-void ModelList::draw() const { current().draw(); }
+void ModelList::draw(Shader& shader) const { current().draw(shader); }
 
 namespace {
 void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,

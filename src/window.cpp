@@ -173,7 +173,7 @@ void Window::loop(std::function<void()> left_body, std::function<void()> right_b
     while (glfwWindowShouldClose(window) == GLFW_FALSE) {
         // clear canvas
         glEnable(GL_DEPTH_TEST);
-        glClearColor(CLEAR_COLOR.x, CLEAR_COLOR.y, CLEAR_COLOR.z, 1.0f);
+        glClearColor(CLEAR_COLOR.x(), CLEAR_COLOR.y(), CLEAR_COLOR.z(), 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         glViewport(0, 0, impl->width / 2, impl->height);

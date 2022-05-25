@@ -25,6 +25,10 @@ class Shader final {
     // The input matrix should be stored row-major.
     void set_uniform(std::string_view name, const Matrix4& mat);
 
+    // Sets uniform with name to value of vec.
+    // The input matrix should be stored row-major.
+    void set_uniform(std::string_view name, const Vector3& vec);
+
   private:
     class Impl;
     struct ImplDeleter {

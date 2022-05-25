@@ -19,7 +19,7 @@ class Quad : public Drawable {
   public:
     Quad();
     ~Quad();
-    virtual void draw() const override;
+    virtual void draw(Shader& shader) const override;
 
     static const GLsizei VERTEX_COUNT;
 
@@ -83,7 +83,7 @@ void Scene::Impl::draw_model(const StagedTransform& transform) {
 
     shader.set_uniform("m", m);
     shader.set_uniform("vp", vp);
-    drawable->draw();
+    drawable->draw(shader);
 }
 
 void Scene::switch_render_mode() { impl->switch_render_mode(); }
@@ -135,7 +135,7 @@ Quad::~Quad() {
     glDeleteVertexArrays(1, &vao);
 }
 
-void Quad::draw() const {
+void Quad::draw(Shader& shader) const {
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, Quad::VERTEX_COUNT);
 }
