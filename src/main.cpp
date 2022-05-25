@@ -45,7 +45,7 @@ void init() {
     Scene scene{shader, std::make_unique<ModelList>(models)};
 
     // Setup transformation and control objects
-    Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
+    Mvp mvp{Window::DEFAULT_WIDTH / 2, Window::DEFAULT_HEIGHT};
     Control control{};
     LightMode light_mode{};
     LightOpts light;
