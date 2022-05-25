@@ -124,6 +124,16 @@ since Apple did not backport C++17 support to them.
 
 Alternatively it is also possible to generate an Xcode project by running `cmake -G Xcode .`.
 
+It's a known problem that bare unix executable can't get window focus and thus can't receive keyboard controls.
+An easy fix is to put the binary inside a manually created app bundle like this.
+
+```sh
+# Create app bundle
+mkdir -p App.app/Contents/MacOS/
+# Put the unix executable into the bundle
+cp <path to binary> App.app/Contents/MacOS/App
+```
+
 
 ## NixOS / Nix Package Manager
 
