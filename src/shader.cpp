@@ -16,6 +16,7 @@ class Shader::Impl {
     void set_uniform(std::string_view name, const Matrix4& mat);
     void set_uniform(std::string_view name, const Vector3& vec);
     void set_uniform(std::string_view name, GLint value);
+    void set_uniform(std::string_view name, GLfloat value);
 
     GLint uniform_location(std::string_view name);
 
@@ -108,6 +109,12 @@ void Shader::set_uniform(std::string_view name, GLint value) { impl->set_uniform
 void Shader::Impl::set_uniform(std::string_view name, GLint value) {
     const GLint loc = uniform_location(name);
     glUniform1i(loc, value);
+}
+
+void Shader::set_uniform(std::string_view name, GLfloat value) { impl->set_uniform(name, value); }
+void Shader::Impl::set_uniform(std::string_view name, GLfloat value) {
+    const GLint loc = uniform_location(name);
+    glUniform1f(loc, value);
 }
 
 GLint Shader::Impl::uniform_location(std::string_view name) {

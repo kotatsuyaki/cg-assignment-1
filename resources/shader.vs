@@ -20,14 +20,16 @@ uniform vec3 ks;
 uniform int light_mode;
 uniform int is_vertex_light;
 
-const vec3 light_pos = vec3(1.0f, 1.0f, 1.0f);
-const float diffuse = 1.0f;
-const float cutoff = radians(30);
-const float shine = 64.0f;
+uniform vec3 light_pos;
+uniform float diffuse;
+uniform float cutoff;
+uniform float shine;
 
 const int DIR_MODE = 0;
 const int POINT_MODE = 1;
 const int SPOT_MODE = 2;
+
+const float SPOT_EXP = 50.0f;
 
 const vec3 POINT_ATTEN_COEF = vec3(0.01f, 0.8f, 0.1f);
 const vec3 SPOT_ATTEN_COEF = vec3(0.05, 0.3f, 0.6f);
@@ -57,7 +59,7 @@ float compute_spot(int light_mode, vec3 l) {
         if (dot(l, vec3(0.0f, 0.0f, 1.0f)) < cos(cutoff)) {
             return 0.0f;
         } else {
-            return pow(max(dot(l, vec3(0.0f, 0.0f, 1.0f)), 0.0f), 50.0f);
+            return pow(max(0.0f, dot(l, vec3(0.0f, 0.0f, 1.0f))), SPOT_EXP);
         }
     } else {
         return 1.0f;
@@ -90,7 +92,7 @@ void main() {
         float spot = compute_spot(light_mode, l);
 
 		vec3 ambient = ka * 0.15f;
-		vec3 diffu =  kd * max(dot(n, l), 0.0f) * diffuse;
+		vec3 diffu = kd * max(0.0f, dot(n, l)) * diffuse;
 		vec3 spec = ks * pow(max(dot(normalize(n), normalize(h)), 0.0f), shine);
 
 		vertex_color = ambient + spot * atten * (diffu + spec);

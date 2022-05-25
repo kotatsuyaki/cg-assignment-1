@@ -46,8 +46,9 @@ void init() {
 
     // Setup transformation and control objects
     Mvp mvp{Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
-    MvpControl control{};
+    Control control{};
     LightMode light_mode{};
+    LightOpts light;
 
     // Setup keyboard callbacks
     window.on_keydown(Key::Z, [&]() { models.prev_model(); });
@@ -57,12 +58,14 @@ void init() {
     window.on_keydown(Key::O, [&]() { mvp.set_project_mode(Mvp::ProjectMode::Orthogonal); });
     window.on_keydown(Key::P, [&]() { mvp.set_project_mode(Mvp::ProjectMode::Perspective); });
 
-    window.on_keydown(Key::T, [&]() { control.set_mode(MvpControl::Mode::TranslateModel); });
-    window.on_keydown(Key::R, [&]() { control.set_mode(MvpControl::Mode::RotateModel); });
-    window.on_keydown(Key::S, [&]() { control.set_mode(MvpControl::Mode::ScaleModel); });
-    window.on_keydown(Key::E, [&]() { control.set_mode(MvpControl::Mode::TranslateEyePos); });
-    window.on_keydown(Key::C, [&]() { control.set_mode(MvpControl::Mode::TranslateViewCenter); });
-    window.on_keydown(Key::U, [&]() { control.set_mode(MvpControl::Mode::TranslateViewUp); });
+    window.on_keydown(Key::T, [&]() { control.set_mode(Control::Mode::TranslateModel); });
+    window.on_keydown(Key::R, [&]() { control.set_mode(Control::Mode::RotateModel); });
+    window.on_keydown(Key::S, [&]() { control.set_mode(Control::Mode::ScaleModel); });
+    window.on_keydown(Key::E, [&]() { control.set_mode(Control::Mode::TranslateEyePos); });
+    window.on_keydown(Key::C, [&]() { control.set_mode(Control::Mode::TranslateViewCenter); });
+    window.on_keydown(Key::U, [&]() { control.set_mode(Control::Mode::TranslateViewUp); });
+    window.on_keydown(Key::K, [&]() { control.set_mode(Control::Mode::Light); });
+    window.on_keydown(Key::J, [&]() { control.set_mode(Control::Mode::Shininess); });
 
     window.on_keydown(Key::L, [&]() {
         light_mode.next();
@@ -94,7 +97,9 @@ void init() {
     // Run the main loop
     window.loop(
         [&]() {
-            control.update(mvp);
+            control.update(mvp, light);
+            light.set(light_mode, shader);
+
             shader.set_uniform("is_vertex_light", 1);
             scene.render(window, mvp);
         },

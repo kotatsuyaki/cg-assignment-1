@@ -21,6 +21,7 @@ class Shader final {
     void set_uniform(std::string_view name, const Matrix4& mat);
     void set_uniform(std::string_view name, const Vector3& vec);
     void set_uniform(std::string_view name, GLint value);
+    void set_uniform(std::string_view name, GLfloat value);
 
   private:
     class Impl;

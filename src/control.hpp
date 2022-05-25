@@ -3,10 +3,13 @@
 
 #include <memory>
 
+#include "shader.hpp"
 #include "transform/mvp.hpp"
 
-// Class making changes to instances of Mvp.
-class MvpControl {
+class LightOpts;
+
+// Class making changes to instances of Mvp and other shader program parameters.
+class Control {
   public:
     enum class Mode {
         TranslateModel,
@@ -15,13 +18,15 @@ class MvpControl {
         TranslateEyePos,
         TranslateViewCenter,
         TranslateViewUp,
+        Light,
+        Shininess,
     };
-    MvpControl();
-    ~MvpControl();
+    Control();
+    ~Control();
 
     // Applies accumulated changes to mvp.
     // The accumulated changes are zeroed at the end.
-    void update(Mvp& mvp);
+    void update(Mvp& mvp, LightOpts& light);
 
     // Adds offset to the accumulated value.
     void update_offset(Vector3 offset);
@@ -52,6 +57,18 @@ class LightMode {
 
   private:
     Value value;
+};
+
+struct LightOpts {
+    Vector3 dir_light_pos{1.0f, 1.0f, 1.0f};
+    Vector3 point_light_pos{0.0f, 2.0f, 1.0f};
+    Vector3 spot_light_pos{0.0f, 0.0f, 2.0f};
+
+    float shine = 64.0f;
+    float cutoff = 30.0f;
+    float diffuse = 1.0f;
+
+    void set(LightMode mode, Shader& shader) const;
 };
 
 #endif

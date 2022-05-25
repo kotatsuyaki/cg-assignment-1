@@ -1,4 +1,5 @@
 #include "control.hpp"
+#include "shader.hpp"
 
 namespace {
 // Used to slow down mouse operations.
@@ -12,12 +13,14 @@ const Vector3 SCALING_SCALES{-1.0f, 1.0f, -1.0f};
 const Vector3 EYEPOS_SCALES{-1.0f, -1.0f, 1.0f};
 const Vector3 CENTER_SCALES{-1.0f, 1.0f, 1.0f};
 const Vector3 UP_SCALES{-1.0f, -1.0f, 1.0f};
+const Vector3 LIGHT_SCALES{1.0f, 1.0f, -1.0f};
+const Vector3 SHINE_SCALES{1.0f, 1.0f, -500.0f};
 } // namespace
 
-class MvpControl::Impl {
+class Control::Impl {
   public:
     Impl();
-    void update(Mvp& mvp);
+    void update(Mvp& mvp, LightOpts& light);
     void update_offset(Vector3 offset);
     void set_pressed(bool pressed);
     void set_mode(Mode mode);
@@ -28,13 +31,13 @@ class MvpControl::Impl {
     bool pressed;
 };
 
-MvpControl::MvpControl() : impl(std::make_unique<Impl>()) {}
-MvpControl::Impl::Impl() : mode(Mode::TranslateModel), accumulated({0, 0, 0}), pressed(false) {}
+Control::Control() : impl(std::make_unique<Impl>()) {}
+Control::Impl::Impl() : mode(Mode::TranslateModel), accumulated({0, 0, 0}), pressed(false) {}
 
-MvpControl::~MvpControl() = default;
+Control::~Control() = default;
 
-void MvpControl::update(Mvp& mvp) { impl->update(mvp); }
-void MvpControl::Impl::update(Mvp& mvp) {
+void Control::update(Mvp& mvp, LightOpts& light) { impl->update(mvp, light); }
+void Control::Impl::update(Mvp& mvp, LightOpts& light) {
     if (pressed == false) {
         accumulated.x() = accumulated.y() = 0;
     }
@@ -66,16 +69,45 @@ void MvpControl::Impl::update(Mvp& mvp) {
         accumulated *= UP_SCALES;
         mvp.update_up(accumulated);
     } break;
+    case Mode::Light: {
+        accumulated *= LIGHT_SCALES;
+        const Vector3 displace{accumulated.x(), accumulated.y(), 0.0f};
+
+        light.dir_light_pos += displace;
+        light.point_light_pos += displace;
+        light.spot_light_pos += displace;
+
+        light.diffuse += accumulated.z();
+        light.cutoff += accumulated.z();
+    } break;
+    case Mode::Shininess: {
+        accumulated *= SHINE_SCALES;
+        light.shine += accumulated.z();
+    } break;
     }
 
     accumulated = Vector3{0, 0, 0};
 }
 
-void MvpControl::update_offset(Vector3 offset) { impl->update_offset(offset); }
-void MvpControl::Impl::update_offset(Vector3 offset) { accumulated += offset; }
+void Control::update_offset(Vector3 offset) { impl->update_offset(offset); }
+void Control::Impl::update_offset(Vector3 offset) { accumulated += offset; }
 
-void MvpControl::set_pressed(bool pressed) { impl->set_pressed(pressed); }
-void MvpControl::Impl::set_pressed(bool pressed) { this->pressed = pressed; }
+void Control::set_pressed(bool pressed) { impl->set_pressed(pressed); }
+void Control::Impl::set_pressed(bool pressed) { this->pressed = pressed; }
 
-void MvpControl::set_mode(Mode mode) { impl->set_mode(mode); }
-void MvpControl::Impl::set_mode(Mode mode) { this->mode = mode; }
+void Control::set_mode(Mode mode) { impl->set_mode(mode); }
+void Control::Impl::set_mode(Mode mode) { this->mode = mode; }
+
+void LightOpts::set(LightMode mode, Shader& shader) const {
+    shader.set_uniform("diffuse", diffuse);
+    shader.set_uniform("cutoff", cutoff);
+    shader.set_uniform("shine", shine);
+
+    if (mode == LightMode::Direction) {
+        shader.set_uniform("light_pos", dir_light_pos);
+    } else if (mode == LightMode::Point) {
+        shader.set_uniform("light_pos", point_light_pos);
+    } else if (mode == LightMode::Spot) {
+        shader.set_uniform("light_pos", spot_light_pos);
+    }
+}
