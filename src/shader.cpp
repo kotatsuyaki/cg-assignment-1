@@ -8,6 +8,19 @@
 
 #include "window.hpp"
 
+namespace {
+enum class MagFilterMode {
+    Nearest,
+    Linear,
+};
+
+enum class MinFilterMode {
+    Nearest,
+    LinearMipmapLinear,
+};
+
+} // namespace
+
 class Shader::Impl {
   public:
     Impl(GLuint program) : program(program), uniform_locations() {}
@@ -19,6 +32,12 @@ class Shader::Impl {
     void set_uniform(std::string_view name, GLfloat value);
 
     GLint uniform_location(std::string_view name);
+
+    MagFilterMode mag_filter_mode;
+    MinFilterMode min_filter_mode;
+
+    void toggle_mag_filter();
+    void toggle_min_filter();
 
   private:
     GLuint program;
@@ -131,5 +150,38 @@ GLint Shader::Impl::uniform_location(std::string_view name) {
     } else {
         // Cache hit, return cached value
         return it->second;
+    }
+}
+
+void Shader::toggle_mag_filter() { impl->toggle_mag_filter(); }
+void Shader::Impl::toggle_mag_filter() {
+    if (mag_filter_mode == MagFilterMode::Nearest) {
+        mag_filter_mode = MagFilterMode::Linear;
+    } else {
+        mag_filter_mode = MagFilterMode::Nearest;
+    }
+}
+
+void Shader::toggle_min_filter() { impl->toggle_min_filter(); }
+void Shader::Impl::toggle_min_filter() {
+    if (min_filter_mode == MinFilterMode::Nearest) {
+        min_filter_mode = MinFilterMode::LinearMipmapLinear;
+    } else {
+        min_filter_mode = MinFilterMode::Nearest;
+    }
+}
+
+GLint Shader::mag_filter() const {
+    if (impl->mag_filter_mode == MagFilterMode::Nearest) {
+        return GL_NEAREST;
+    } else {
+        return GL_LINEAR;
+    }
+}
+GLint Shader::min_filter() const {
+    if (impl->min_filter_mode == MinFilterMode::Nearest) {
+        return GL_NEAREST;
+    } else {
+        return GL_LINEAR_MIPMAP_LINEAR;
     }
 }

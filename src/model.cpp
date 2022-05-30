@@ -114,6 +114,8 @@ void Model::Impl::draw(Shader& shader) const {
                 shader.set_uniform("tex_loaded", 1);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, *texture);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, shader.mag_filter());
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, shader.min_filter());
             } else {
                 shader.set_uniform("tex_loaded", 0);
             }
@@ -399,7 +401,7 @@ GLuint load_texture_image(const fs::path& image_path) {
         stbi_image_free(data);
         return tex;
     } else {
-        throw std::runtime_error(std::string("Failed to load image from path") +
+        throw std::runtime_error(std::string("Failed to load image from path ") +
                                  image_path.string());
     }
 }

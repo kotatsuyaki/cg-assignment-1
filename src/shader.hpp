@@ -23,6 +23,12 @@ class Shader final {
     void set_uniform(std::string_view name, GLint value);
     void set_uniform(std::string_view name, GLfloat value);
 
+    GLint mag_filter() const;
+    GLint min_filter() const;
+
+    void toggle_mag_filter();
+    void toggle_min_filter();
+
   private:
     class Impl;
     std::shared_ptr<Impl> impl;
