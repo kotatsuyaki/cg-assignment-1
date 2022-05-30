@@ -386,7 +386,8 @@ GLuint load_texture_image(const fs::path& image_path) {
 
     stbi_set_flip_vertically_on_load(true);
 
-    stbi_uc* data = stbi_load(image_path.c_str(), &width, &height, &channel, require_channel);
+    stbi_uc* data =
+        stbi_load(image_path.string().c_str(), &width, &height, &channel, require_channel);
     if (data != NULL) {
         GLuint tex = 0;
 
