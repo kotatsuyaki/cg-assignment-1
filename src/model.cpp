@@ -42,6 +42,7 @@ struct Material {
     Vector3 ks{1, 1, 1};
 
     optional<GLuint> texture;
+    bool is_eye = false;
 };
 
 struct SubModel {
@@ -110,12 +111,20 @@ void Model::Impl::draw(Shader& shader) const {
             shader.set_uniform("kd", submodel.material.kd);
             shader.set_uniform("ks", submodel.material.ks);
 
+            if (submodel.material.is_eye) {
+                shader.set_uniform("texture_offset_index", shader.eye_offset_index());
+            } else {
+                shader.set_uniform("texture_offset_index", 0);
+            }
+
             if (auto texture = submodel.material.texture) {
                 shader.set_uniform("tex_loaded", 1);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, *texture);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, shader.mag_filter());
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, shader.min_filter());
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             } else {
                 shader.set_uniform("tex_loaded", 0);
             }
@@ -166,6 +175,7 @@ void Model::Impl::load() const {
         const auto diffuse_texture_path = parent_path / raw_mat.diffuse_texname;
         try {
             mat.texture = load_texture_image(diffuse_texture_path);
+            mat.is_eye = raw_mat.diffuse_texname.find("Eye") != raw_mat.diffuse_texname.npos;
         } catch (std::exception& e) {
             std::cerr << "Failed to load texture:\n" << e.what() << "\n";
             mat.texture = std::nullopt;

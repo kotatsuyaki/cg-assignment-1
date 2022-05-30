@@ -29,6 +29,11 @@ class Shader final {
     void toggle_mag_filter();
     void toggle_min_filter();
 
+    GLint eye_offset_index() const;
+
+    void next_eye_offset();
+    void prev_eye_offset();
+
   private:
     class Impl;
     std::shared_ptr<Impl> impl;

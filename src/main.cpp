@@ -66,6 +66,8 @@ void init() {
     window.on_keydown(Key::J, [&]() { control.set_mode(Control::Mode::Shininess); });
     window.on_keydown(Key::G, [&]() { shader.toggle_mag_filter(); });
     window.on_keydown(Key::B, [&]() { shader.toggle_min_filter(); });
+    window.on_keydown(Key::Left, [&]() { shader.prev_eye_offset(); });
+    window.on_keydown(Key::Right, [&]() { shader.next_eye_offset(); });
 
     window.on_keydown(Key::L, [&]() {
         light_mode.next();

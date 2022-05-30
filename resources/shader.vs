@@ -27,6 +27,8 @@ uniform float diffuse;
 uniform float cutoff;
 uniform float shine;
 
+uniform int texture_offset_index;
+
 const int DIR_MODE = 0;
 const int POINT_MODE = 1;
 const int SPOT_MODE = 2;
@@ -38,6 +40,16 @@ const vec3 SPOT_ATTEN_COEF = vec3(0.05, 0.3f, 0.6f);
 
 const vec3 BAD_MOVE = vec3(1.0f, 0.0f, 0.5f);
 const vec3 NOT_VERTEX_LIGHT = vec3(0.5f, 1.0f, 0.0f);
+
+const vec2 TEXTURE_OFFSETS[7] = vec2[7](
+    vec2(0.0f, 0.0f),
+    vec2(0.0f, -0.25f),
+    vec2(0.0f, -0.5f),
+    vec2(0.0f, -0.75f),
+    vec2(0.5f, 0.0f),
+    vec2(0.5f, -0.25f),
+    vec2(0.5f, -0.5f)
+);
 
 // Apply polynomial coefficients specified in `coef` to variable `d`
 float poly(float d, vec3 coef) {
@@ -70,7 +82,7 @@ float compute_spot(int light_mode, vec3 l) {
 
 void main() {
 	gl_Position = vp * m * vec4(in_pos, 1.0f);
-    tex_coord = in_tex_coord;
+    tex_coord = in_tex_coord + TEXTURE_OFFSETS[texture_offset_index];
 
 	world_pos = m * vec4(in_pos, 1.0f);
     world_pos /= world_pos.w;

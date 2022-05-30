@@ -15,7 +15,7 @@ enum class MagFilterMode {
 };
 
 enum class MinFilterMode {
-    Nearest,
+    NearestMipmapLinear,
     LinearMipmapLinear,
 };
 
@@ -33,11 +33,16 @@ class Shader::Impl {
 
     GLint uniform_location(std::string_view name);
 
-    MagFilterMode mag_filter_mode;
-    MinFilterMode min_filter_mode;
+    MagFilterMode mag_filter_mode = MagFilterMode::Nearest;
+    MinFilterMode min_filter_mode = MinFilterMode::NearestMipmapLinear;
 
     void toggle_mag_filter();
     void toggle_min_filter();
+
+    int eye_offset_index = 0;
+
+    void next_eye_offset();
+    void prev_eye_offset();
 
   private:
     GLuint program;
@@ -164,10 +169,10 @@ void Shader::Impl::toggle_mag_filter() {
 
 void Shader::toggle_min_filter() { impl->toggle_min_filter(); }
 void Shader::Impl::toggle_min_filter() {
-    if (min_filter_mode == MinFilterMode::Nearest) {
+    if (min_filter_mode == MinFilterMode::NearestMipmapLinear) {
         min_filter_mode = MinFilterMode::LinearMipmapLinear;
     } else {
-        min_filter_mode = MinFilterMode::Nearest;
+        min_filter_mode = MinFilterMode::NearestMipmapLinear;
     }
 }
 
@@ -179,9 +184,17 @@ GLint Shader::mag_filter() const {
     }
 }
 GLint Shader::min_filter() const {
-    if (impl->min_filter_mode == MinFilterMode::Nearest) {
-        return GL_NEAREST;
+    if (impl->min_filter_mode == MinFilterMode::NearestMipmapLinear) {
+        return GL_NEAREST_MIPMAP_LINEAR;
     } else {
-        return GL_LINEAR_MIPMAP_LINEAR;
+        return GL_LINEAR_MIPMAP_NEAREST;
     }
 }
+
+void Shader::Impl::next_eye_offset() { eye_offset_index = (eye_offset_index + 1) % 7; }
+void Shader::next_eye_offset() { impl->next_eye_offset(); }
+void Shader::Impl::prev_eye_offset() {
+    eye_offset_index = (eye_offset_index == 0) ? (7 - 1) : (eye_offset_index - 1);
+}
+void Shader::prev_eye_offset() { impl->prev_eye_offset(); }
+GLint Shader::eye_offset_index() const { return impl->eye_offset_index; }
