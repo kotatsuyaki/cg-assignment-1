@@ -33,7 +33,7 @@ void init() {
 
     // Initialize glfw and window
     Glfw glfw{};
-    Window window{glfw, "107021129 HW1"};
+    Window window{glfw, "107021129 HW3"};
 
     // Setup shader
     Shader shader{window, resources::SHADER_VS, resources::SHADER_FS};
