@@ -17,14 +17,12 @@ using std::size_t;
 
 void init();
 
-int main() {
-    try {
-        init();
-    } catch (const std::exception& e) {
-        std::cerr << "Exception caught: " << e.what() << "\n";
-        return 1;
-    }
+int main() try {
+    init();
     return 0;
+} catch (const std::exception& e) {
+    std::cerr << "Exception caught: " << e.what() << "\n";
+    return 1;
 }
 
 void init() {
