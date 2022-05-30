@@ -5,6 +5,7 @@ in vec4 world_pos;
 in vec3 n;
 in vec3 l;
 in vec3 h;
+in vec2 tex_coord;
 
 out vec4 out_color;
 
@@ -19,6 +20,9 @@ uniform vec3 light_pos;
 uniform float diffuse;
 uniform float cutoff;
 uniform float shine;
+
+uniform int tex_loaded;
+uniform sampler2D tex;
 
 const int DIR_MODE = 0;
 const int POINT_MODE = 1;
@@ -59,8 +63,15 @@ float compute_spot(int light_mode, vec3 l) {
 }
 
 void main() {
+    vec3 tex_color;
+    if (tex_loaded == 1) {
+        tex_color = texture(tex, tex_coord).rgb;
+    } else {
+        tex_color = vec3(1.0f);
+    }
+
 	if (is_vertex_light == 1) {
-		out_color = vec4(vertex_color, 1.0f);
+		out_color = vec4(tex_color * vertex_color, 1.0f);
 	} else {
         float atten = compute_atten(light_mode, light_pos, world_pos.xyz);
         float spot = compute_spot(light_mode, l);
@@ -70,7 +81,7 @@ void main() {
 		vec3 spec = ks * pow(max(dot(normalize(n), normalize(h)), 0.0f), shine);
 
 		vec3 color = amb + spot * atten * (diffu + spec);
-		out_color = vec4(color, 1.0f);
+		out_color = vec4(tex_color * color, 1.0f);
 	}
 }
 

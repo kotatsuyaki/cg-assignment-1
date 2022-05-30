@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <iostream>
 #include <limits>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -15,6 +16,7 @@
 #include <stb/stb_image.h>
 #include <tinyobjloader/tiny_obj_loader.h>
 
+using std::optional;
 using std::vector;
 
 namespace fs = std::filesystem;
@@ -38,7 +40,8 @@ struct Material {
     Vector3 kd{1, 1, 1};
     // Specular color
     Vector3 ks{1, 1, 1};
-    GLuint texture;
+
+    optional<GLuint> texture;
 };
 
 struct SubModel {
@@ -94,7 +97,7 @@ void Model::Impl::draw(Shader& shader) const {
             load();
             status = LoadStatus::Loaded;
         } catch (const std::exception& e) {
-            std::cerr << "Exception during model load:\n" << e.what() << "\n";
+            std::cerr << "Exception during model load from " << path << ":\n" << e.what() << "\n";
             status = LoadStatus::Failed;
         }
     }
@@ -106,6 +109,14 @@ void Model::Impl::draw(Shader& shader) const {
             shader.set_uniform("ka", submodel.material.ka);
             shader.set_uniform("kd", submodel.material.kd);
             shader.set_uniform("ks", submodel.material.ks);
+
+            if (auto texture = submodel.material.texture) {
+                shader.set_uniform("tex_loaded", 1);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, *texture);
+            } else {
+                shader.set_uniform("tex_loaded", 0);
+            }
 
             glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(submodel.vertex_count));
         }
@@ -151,7 +162,12 @@ void Model::Impl::load() const {
         mat.ks = Vector3{raw_mat.specular};
 
         const auto diffuse_texture_path = parent_path / raw_mat.diffuse_texname;
-        mat.texture = load_texture_image(diffuse_texture_path);
+        try {
+            mat.texture = load_texture_image(diffuse_texture_path);
+        } catch (std::exception& e) {
+            std::cerr << "Failed to load texture:\n" << e.what() << "\n";
+            mat.texture = std::nullopt;
+        }
 
         materials.push_back(mat);
     }

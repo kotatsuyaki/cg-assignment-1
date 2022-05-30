@@ -7,12 +7,14 @@ const std::string SHADER_VS = R"(
 layout (location = 0) in vec3 in_pos;
 layout (location = 1) in vec3 in_color;
 layout (location = 2) in vec3 in_normal;
+layout (location = 3) in vec2 in_tex_coord;
 
 out vec3 vertex_color;
 out vec4 world_pos;
 out vec3 n;
 out vec3 l;
 out vec3 h;
+out vec2 tex_coord;
 
 uniform mat4 vp;
 uniform mat4 m;
@@ -32,6 +34,8 @@ uniform float shine;
 const int DIR_MODE = 0;
 const int POINT_MODE = 1;
 const int SPOT_MODE = 2;
+
+const float SPOT_EXP = 50.0f;
 
 const vec3 POINT_ATTEN_COEF = vec3(0.01f, 0.8f, 0.1f);
 const vec3 SPOT_ATTEN_COEF = vec3(0.05, 0.3f, 0.6f);
@@ -61,7 +65,7 @@ float compute_spot(int light_mode, vec3 l) {
         if (dot(l, vec3(0.0f, 0.0f, 1.0f)) < cos(cutoff)) {
             return 0.0f;
         } else {
-            return pow(max(dot(l, vec3(0.0f, 0.0f, 1.0f)), 0.0f), 50.0f);
+            return pow(max(0.0f, dot(l, vec3(0.0f, 0.0f, 1.0f))), SPOT_EXP);
         }
     } else {
         return 1.0f;
@@ -70,6 +74,7 @@ float compute_spot(int light_mode, vec3 l) {
 
 void main() {
 	gl_Position = vp * m * vec4(in_pos, 1.0f);
+    tex_coord = in_tex_coord;
 
 	world_pos = m * vec4(in_pos, 1.0f);
     world_pos /= world_pos.w;
@@ -94,7 +99,7 @@ void main() {
         float spot = compute_spot(light_mode, l);
 
 		vec3 ambient = ka * 0.15f;
-		vec3 diffu = kd * max(dot(n, l), 0.0f) * diffuse;
+		vec3 diffu = kd * max(0.0f, dot(n, l)) * diffuse;
 		vec3 spec = ks * pow(max(dot(normalize(n), normalize(h)), 0.0f), shine);
 
 		vertex_color = ambient + spot * atten * (diffu + spec);
@@ -114,6 +119,7 @@ in vec4 world_pos;
 in vec3 n;
 in vec3 l;
 in vec3 h;
+in vec2 tex_coord;
 
 out vec4 out_color;
 
@@ -129,9 +135,14 @@ uniform float diffuse;
 uniform float cutoff;
 uniform float shine;
 
+uniform int tex_loaded;
+uniform sampler2D tex;
+
 const int DIR_MODE = 0;
 const int POINT_MODE = 1;
 const int SPOT_MODE = 2;
+
+const float SPOT_EXP = 50.0f;
 
 const vec3 POINT_ATTEN_COEF = vec3(0.01f, 0.8f, 0.1f);
 const vec3 SPOT_ATTEN_COEF = vec3(0.05, 0.3f, 0.6f);
@@ -158,7 +169,7 @@ float compute_spot(int light_mode, vec3 l) {
         if (dot(l, vec3(0.0f, 0.0f, 1.0f)) < cos(cutoff)) {
             return 0.0f;
         } else {
-            return pow(max(dot(l, vec3(0.0f, 0.0f, 1.0f)), 0.0f), 50.0f);
+            return pow(max(dot(l, vec3(0.0f, 0.0f, 1.0f)), 0.0f), SPOT_EXP);
         }
     } else {
         return 1.0f;
@@ -166,8 +177,15 @@ float compute_spot(int light_mode, vec3 l) {
 }
 
 void main() {
+    vec3 tex_color;
+    if (tex_loaded == 1) {
+        tex_color = texture(tex, tex_coord).rgb;
+    } else {
+        tex_color = vec3(1.0f);
+    }
+
 	if (is_vertex_light == 1) {
-		out_color = vec4(vertex_color, 1.0f);
+		out_color = vec4(tex_color * vertex_color, 1.0f);
 	} else {
         float atten = compute_atten(light_mode, light_pos, world_pos.xyz);
         float spot = compute_spot(light_mode, l);
@@ -177,7 +195,7 @@ void main() {
 		vec3 spec = ks * pow(max(dot(normalize(n), normalize(h)), 0.0f), shine);
 
 		vec3 color = amb + spot * atten * (diffu + spec);
-		out_color = vec4(color, 1.0f);
+		out_color = vec4(tex_color * color, 1.0f);
 	}
 }
 

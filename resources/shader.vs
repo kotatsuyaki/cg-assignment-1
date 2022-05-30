@@ -3,12 +3,14 @@
 layout (location = 0) in vec3 in_pos;
 layout (location = 1) in vec3 in_color;
 layout (location = 2) in vec3 in_normal;
+layout (location = 3) in vec2 in_tex_coord;
 
 out vec3 vertex_color;
 out vec4 world_pos;
 out vec3 n;
 out vec3 l;
 out vec3 h;
+out vec2 tex_coord;
 
 uniform mat4 vp;
 uniform mat4 m;
@@ -68,6 +70,7 @@ float compute_spot(int light_mode, vec3 l) {
 
 void main() {
 	gl_Position = vp * m * vec4(in_pos, 1.0f);
+    tex_coord = in_tex_coord;
 
 	world_pos = m * vec4(in_pos, 1.0f);
     world_pos /= world_pos.w;
