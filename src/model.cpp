@@ -12,14 +12,19 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <glad/glad.h>
+#include <stb/stb_image.h>
 #include <tinyobjloader/tiny_obj_loader.h>
+
+using std::vector;
 
 namespace fs = std::filesystem;
 
 namespace {
 void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
                std::vector<GLfloat>& colors, std::vector<GLfloat>& normals,
-               tinyobj::shape_t* shape);
+               vector<GLfloat>& texture_coords, vector<int>& material_ids, tinyobj::shape_t* shape);
+GLuint load_texture_image(const fs::path& image_path);
+
 enum class LoadStatus {
     NotYet,
     Loaded,
@@ -33,7 +38,19 @@ struct Material {
     Vector3 kd{1, 1, 1};
     // Specular color
     Vector3 ks{1, 1, 1};
+    GLuint texture;
 };
+
+struct SubModel {
+    Material material;
+    GLuint vao = 0;
+    GLuint vertices = 0;
+    GLuint colors = 0;
+    GLuint normals = 0;
+    GLuint texcoords = 0;
+    size_t vertex_count = 0;
+};
+
 } // namespace
 
 struct Model::Impl {
@@ -41,13 +58,8 @@ struct Model::Impl {
 
     mutable LoadStatus status;
 
-    mutable GLuint vao = 0;
-    mutable GLuint vertices = 0;
-    mutable GLuint colors = 0;
-    mutable GLuint normals = 0;
-    mutable size_t vertex_count = 0;
-
-    mutable Material material;
+    mutable vector<SubModel> submodels;
+    mutable vector<Material> materials;
 
     Impl(std::string_view path);
 
@@ -63,6 +75,10 @@ struct Model::Impl {
     void draw(Shader& shader) const;
     void load() const;
     void unload() const;
+
+    void populate_submodels(vector<GLfloat>& vertices, vector<GLfloat>& colors,
+                            vector<GLfloat>& normals, vector<GLfloat>& texture_coords,
+                            vector<int>& material_id) const;
 };
 
 Model::Impl::Impl(std::string_view path) : path(path), status(LoadStatus::NotYet) {}
@@ -84,73 +100,119 @@ void Model::Impl::draw(Shader& shader) const {
     }
 
     if (status == LoadStatus::Loaded) {
-        glBindVertexArray(vao);
+        for (const auto& submodel : submodels) {
+            glBindVertexArray(submodel.vao);
 
-        shader.set_uniform("ka", material.ka);
-        shader.set_uniform("kd", material.kd);
-        shader.set_uniform("ks", material.ks);
+            shader.set_uniform("ka", submodel.material.ka);
+            shader.set_uniform("kd", submodel.material.kd);
+            shader.set_uniform("ks", submodel.material.ks);
 
-        // NOTE: We don't have boost::numeric_cast available.  This cast may overflow.
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count));
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(submodel.vertex_count));
+        }
     }
 }
 
 void Model::Impl::unload() const {
     if (status == LoadStatus::Loaded) {
-        glDeleteBuffers(1, &vertices);
-        glDeleteBuffers(1, &colors);
-        glDeleteBuffers(1, &normals);
-        glDeleteVertexArrays(1, &vao);
+        for (const auto& submodel : submodels) {
+            glDeleteBuffers(1, &submodel.vertices);
+            glDeleteBuffers(1, &submodel.colors);
+            glDeleteBuffers(1, &submodel.normals);
+            glDeleteBuffers(1, &submodel.texcoords);
+            glDeleteVertexArrays(1, &submodel.vao);
+        }
     }
 }
 
 void Model::Impl::load() const {
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
+    vector<tinyobj::shape_t> shapes;
+    vector<tinyobj::material_t> raw_materials;
     tinyobj::attrib_t attrib;
-    std::vector<GLfloat> vertices;
-    std::vector<GLfloat> colors;
-    std::vector<GLfloat> normals;
+    vector<GLfloat> vertices;
+    vector<GLfloat> colors;
+    vector<GLfloat> normals;
+    vector<GLfloat> texture_coords;
+    vector<int> material_ids;
 
     std::string err, warn;
 
     const auto parent_path = fs::path(path).parent_path();
-    bool res = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str(),
+    bool res = tinyobj::LoadObj(&attrib, &shapes, &raw_materials, &warn, &err, path.c_str(),
                                 parent_path.string().c_str());
 
     if (res == false) {
         throw std::runtime_error(std::string("Failed to load object file:\n") + err + "\n" + warn);
     }
 
-    normalize(&attrib, vertices, colors, normals, &shapes[0]);
-    vertex_count = vertices.size() / 3;
+    for (const auto& raw_mat : raw_materials) {
+        Material mat;
+        mat.ka = Vector3{raw_mat.ambient};
+        mat.kd = Vector3{raw_mat.diffuse};
+        mat.ks = Vector3{raw_mat.specular};
 
-    if (materials.empty() == false) {
-        const auto& mat = materials[0];
-        material.ka = Vector3{mat.ambient};
-        material.kd = Vector3{mat.diffuse};
-        material.ks = Vector3{mat.specular};
-    } else {
-        std::cerr << "No materials found\n";
+        const auto diffuse_texture_path = parent_path / raw_mat.diffuse_texname;
+        mat.texture = load_texture_image(diffuse_texture_path);
+
+        materials.push_back(mat);
     }
 
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    const auto gen_and_bind = [](GLuint index, GLuint& buffer, auto& vec) {
-        glGenBuffers(1, &buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(GLfloat), &vec.at(0), GL_STATIC_DRAW);
-
-        glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(index);
-    };
-
-    gen_and_bind(0, this->vertices, vertices);
-    gen_and_bind(1, this->colors, colors);
-    gen_and_bind(2, this->normals, normals);
+    normalize(&attrib, vertices, colors, normals, texture_coords, material_ids, &shapes[0]);
+    populate_submodels(vertices, colors, normals, texture_coords, material_ids);
 
     std::cerr << "Loaded model from " << path << " successfully\n";
+}
+
+void Model::Impl::populate_submodels(vector<GLfloat>& vertices, vector<GLfloat>& colors,
+                                     vector<GLfloat>& normals, vector<GLfloat>& texture_coords,
+                                     vector<int>& material_ids) const {
+    for (int m = 0; m < materials.size(); m++) {
+        vector<GLfloat> m_vertices, m_colors, m_normals, m_texture_coords;
+        for (int v = 0; v < material_ids.size(); v++) {
+            if (material_ids[v] == m) {
+                m_vertices.push_back(vertices[v * 3 + 0]);
+                m_vertices.push_back(vertices[v * 3 + 1]);
+                m_vertices.push_back(vertices[v * 3 + 2]);
+
+                m_colors.push_back(colors[v * 3 + 0]);
+                m_colors.push_back(colors[v * 3 + 1]);
+                m_colors.push_back(colors[v * 3 + 2]);
+
+                m_normals.push_back(normals[v * 3 + 0]);
+                m_normals.push_back(normals[v * 3 + 1]);
+                m_normals.push_back(normals[v * 3 + 2]);
+
+                m_texture_coords.push_back(texture_coords[v * 2 + 0]);
+                m_texture_coords.push_back(texture_coords[v * 2 + 1]);
+            }
+        }
+
+        if (!m_vertices.empty()) {
+            SubModel submodel;
+
+            submodel.vertex_count = m_vertices.size() / 3;
+
+            glGenVertexArrays(1, &submodel.vao);
+            glBindVertexArray(submodel.vao);
+
+            const auto gen_and_bind = [](GLuint index, GLint size, GLuint& buffer, auto& vec) {
+                glGenBuffers(1, &buffer);
+                glBindBuffer(GL_ARRAY_BUFFER, buffer);
+                glBufferData(GL_ARRAY_BUFFER, vec.size() * sizeof(GLfloat), &vec.at(0),
+                             GL_STATIC_DRAW);
+
+                glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, 0, 0);
+                glEnableVertexAttribArray(index);
+            };
+
+            gen_and_bind(0, 3, submodel.vertices, m_vertices);
+            gen_and_bind(1, 3, submodel.colors, m_colors);
+            gen_and_bind(2, 3, submodel.normals, m_normals);
+            gen_and_bind(3, 2, submodel.texcoords, m_texture_coords);
+
+            submodel.material = materials[m];
+            submodels.push_back(submodel);
+        }
+    }
 }
 
 struct ModelList::Impl {
@@ -197,6 +259,7 @@ void ModelList::draw(Shader& shader) const { current().draw(shader); }
 namespace {
 void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
                std::vector<GLfloat>& colors, std::vector<GLfloat>& normals,
+               vector<GLfloat>& texture_coords, vector<int>& material_ids,
                tinyobj::shape_t* shape) {
     std::vector<float> xs, ys, zs;
     float min_x = 10000, max_x = -10000, min_y = 10000, max_y = -10000, min_z = 10000,
@@ -268,9 +331,6 @@ void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
     float scale = greatest_axis / 2;
 
     for (int i = 0; i < attrib->vertices.size(); i++) {
-        // std::cout << i << " = " << (double)(attrib.vertices.at(i) /
-        // greatestAxis)
-        // << "\n";
         attrib->vertices.at(i) = attrib->vertices.at(i) / scale;
     }
     size_t index_offset = 0;
@@ -291,13 +351,39 @@ void normalize(tinyobj::attrib_t* attrib, std::vector<GLfloat>& vertices,
             colors.push_back(attrib->colors[3 * idx.vertex_index + 1]);
             colors.push_back(attrib->colors[3 * idx.vertex_index + 2]);
 
-            if (idx.normal_index >= 0) {
-                normals.push_back(attrib->normals[3 * idx.normal_index + 0]);
-                normals.push_back(attrib->normals[3 * idx.normal_index + 1]);
-                normals.push_back(attrib->normals[3 * idx.normal_index + 2]);
-            }
+            normals.push_back(attrib->normals[3 * idx.normal_index + 0]);
+            normals.push_back(attrib->normals[3 * idx.normal_index + 1]);
+            normals.push_back(attrib->normals[3 * idx.normal_index + 2]);
+
+            texture_coords.push_back(attrib->texcoords[2 * idx.texcoord_index + 0]);
+            texture_coords.push_back(attrib->texcoords[2 * idx.texcoord_index + 1]);
+
+            material_ids.push_back(shape->mesh.material_ids[f]);
         }
         index_offset += fv;
+    }
+}
+
+GLuint load_texture_image(const fs::path& image_path) {
+    constexpr int require_channel = 4;
+    int channel, width, height;
+
+    stbi_set_flip_vertically_on_load(true);
+
+    stbi_uc* data = stbi_load(image_path.c_str(), &width, &height, &channel, require_channel);
+    if (data != NULL) {
+        GLuint tex = 0;
+
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        stbi_image_free(data);
+        return tex;
+    } else {
+        throw std::runtime_error(std::string("Failed to load image from path") +
+                                 image_path.string());
     }
 }
 } // namespace
