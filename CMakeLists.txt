@@ -16,6 +16,7 @@ add_executable(proj
     src/transform/translate.cpp
     src/transform/viewer.cpp
     src/window.cpp
+    src/stb.cpp
     3rdparty/glad/glad.c
 )
 set_property(TARGET proj PROPERTY CXX_STANDARD 17)
