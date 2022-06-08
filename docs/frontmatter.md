@@ -18,7 +18,7 @@ colorlinks: true
 >   under `binaries/` inside the ZIP file.
 > - Build instructions for Linux, Windows, and macOS are documented in the PDF file.
 >
-> This project is hosted at <https://github.com/kotatsuyaki/cg-assignment-1/tree/hw2>.
+> This project is hosted at <https://github.com/kotatsuyaki/nthu-computer-graphics-hw/tree/hw3>.
 > If you have any questions, contact me at robinhuang123@gmail.com.
 > Alternatively, you may also find me on the
 > [Gitter room for this project](https://gitter.im/cg-assignment-1/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link).
