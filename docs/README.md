@@ -23,24 +23,26 @@ The model files used for testing can [be found here](https://github.com/kotatsuy
 
 All key mappings specified in the assignment spec are implemented.
 
-| Key     | Function                                   |
-|---------|--------------------------------------------|
-| `w`     | Toggle wireframe                           |
-| `z`     | Previous model                             |
-| `x`     | Next model                                 |
-| `o`     | Activate orthogonal projection mode        |
-| `p`     | Activate perspective projection mode       |
-| `t`     | Set control to translation mode            |
-| `s`     | Set control to scale mode                  |
-| `r`     | Set control to rotation mode               |
-| `e`     | Set control to eye position mode           |
-| `c`     | Set control to viewing center mode         |
-| `u`     | Set control to camera up vector mode       |
-| `i`     | Print debug information to standard output |
-| `l`     | Cycle among the lighting modes             |
-| `k`     | Set control to light editing mode          |
-| `j`     | Set control to shininess editing mode      |
-| `v`[^2] | Toggle VSync (defaults to true)            |
+| Key     | Function                                    |
+|---------|---------------------------------------------|
+| `w`     | Toggle wireframe                            |
+| `z`     | Previous model                              |
+| `x`     | Next model                                  |
+| `o`     | Activate orthogonal projection mode         |
+| `p`     | Activate perspective projection mode        |
+| `t`     | Set control to translation mode             |
+| `s`     | Set control to scale mode                   |
+| `r`     | Set control to rotation mode                |
+| `e`     | Set control to eye position mode            |
+| `c`     | Set control to viewing center mode          |
+| `u`     | Set control to camera up vector mode        |
+| `i`     | Print debug information to standard output  |
+| `l`     | Cycle among the lighting modes              |
+| `k`     | Set control to light editing mode           |
+| `j`     | Set control to shininess editing mode       |
+| `g`     | Cycle among the maginification filter modes |
+| `b`     | Cycle among the minification filter modes   |
+| `v`[^2] | Toggle VSync (defaults to true)             |
 
 [^1]: This is not part of the assignment spec.
     It was introduced to avoid hard-coding path to the object files.
@@ -124,7 +126,9 @@ since Apple did not backport C++17 support to them.
 
 Alternatively it is also possible to generate an Xcode project by running `cmake -G Xcode .`.
 
-It's a known problem that bare unix executable can't get window focus and thus can't receive keyboard controls.
+[It's a known bug of GLFW](https://github.com/glfw/glfw/issues/1515)
+that bare unix executable using GLFW to create its windows
+can't get window focus and thus can't receive keyboard controls.
 An easy fix is to put the binary inside a manually created app bundle like this.
 
 ```sh
@@ -150,12 +154,10 @@ The binary is at `./result/bin/proj`.
 
 ![The model file folder picker](./screenshots/folder-picker.png)
 
-![The rabbit model in default setup with directional light](./screenshots/rabbit-default-directional.png)
+![The moon model showcasing the difference between per-vertex and per-pixel lighting](./screenshots/showcase-vertex-pixel-light.png)
 
-![The rabbit model in default setup with point light](./screenshots/rabbit-default-point.png)
+![The フシギダネ model showcasing texture coordinate transformation](./screenshots/texture-transform.png)
 
-![The rabbit model in default setup with spotlight](./screenshots/rabbit-default-spotlight.png)
+![The brick wall model with linear maginification and nearest minification filters](./screenshots/mag-lin-min-near.png)
 
-![The rabbit model with directional light from the left](./screenshots/rabbit-from-left-directional.png)
-
-![The rabbit model with spotlight focusing on the head](./screenshots/rabbit-head-spotlight.png)
+![The brick wall model with nearest maginification and linear minification filters](./screenshots/mag-near-min-lin.png)

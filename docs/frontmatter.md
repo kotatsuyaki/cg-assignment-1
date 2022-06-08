@@ -2,7 +2,7 @@
 # vim: set ft=markdown.pandoc colorcolumn=100:
 
 title: '3D Model Viewer with Lighting'
-subtitle: 'Assignment 2, CS5500 Computer Graphics'
+subtitle: 'Assignment 3, CS5500 Computer Graphics'
 author: '107021129 黃明瀧'
 date: 2022-05-25
 
